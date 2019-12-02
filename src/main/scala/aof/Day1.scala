@@ -1,17 +1,12 @@
 package aof
 
-import scala.io.Source
+object Day1 extends Day with App {
 
-object Day1 extends App {
-
-  val rs = getClass.getClassLoader.getResource("input/mass.txt")
-
-  val lines = Source.fromFile(rs.toURI).getLines().toList
+  val day = "01"
 
   def fuel(mass: Int): Int = mass / 3 - 2
 
   val res1 = lines.map(_.toInt).foldLeft(0)((acc, m) => acc + fuel(m))
-
 
   println("checks:")
   List(12, 14, 1969, 100756).foreach { m =>
@@ -29,6 +24,7 @@ object Day1 extends App {
   }
 
   println("checks:")
+
   List(12, 14, 1969, 100756).foreach { m =>
     val x = streamOfFuel(m)
     println(s"mass : $m => $x (" + x.sum + ")")
@@ -37,5 +33,4 @@ object Day1 extends App {
   val res2 = lines.map(_.toInt).flatMap(streamOfFuel).sum
 
   println("part2: " + res2)
-
 }
