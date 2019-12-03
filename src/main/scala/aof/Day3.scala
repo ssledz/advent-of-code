@@ -1,6 +1,6 @@
 package aof
 
-import aof.Day3.{createPath, createSteps, intersections, lines}
+import aof.Day3.{createPath, createSteps, intersections}
 
 import scala.annotation.tailrec
 
@@ -22,18 +22,24 @@ object Day3 extends Day {
     go(Point(0, 0), steps, List.empty).reverse
   }
 
-  def intersections(paths: List[List[Path]]): (Option[Int], List[Point]) = {
-
-    val path = paths.toList.flatten
+  def intersections(path1: List[Path], path2: List[Path]): (Option[Int], List[Point]) = {
 
     val zipped = for {
-      p1 <- path
-      p2 <- path if p1 != p2
+      p1 <- path1
+      p2 <- path2
     } yield (p1, p2)
+
+    //    println("zipped: " + zipped)
+    //
+    //    val test = zipped.map { case (p1, p2) =>
+    //      s"${p1.intersect(p2)} =>  ${(p1, p2)})"
+    //    }
+    //
+    //    println("test: " + test.mkString("\n"))
 
     val intersections = zipped.map { case (p1, p2) =>
       p1.intersect(p2)
-    }.collect { case Some(a) => a }
+    }.collect { case Some(a) if a != Point(0, 0) => a }
 
     val best = intersections.map(p => Math.abs(p.x) + Math.abs(p.y)).sorted.headOption
 
@@ -42,6 +48,14 @@ object Day3 extends Day {
   }
 
   case class Path(start: Point, end: Point) {
+
+    def minX: Int = Math.min(start.x, end.x)
+
+    def minY: Int = Math.min(start.y, end.y)
+
+    def maxX: Int = Math.max(start.x, end.x)
+
+    def maxY: Int = Math.max(start.y, end.y)
 
     def horizontal: Boolean = start.y == end.y
 
@@ -59,11 +73,11 @@ object Day3 extends Day {
 
           val otherX = other.start.x
 
-          if (start.x <= otherX && end.x >= otherX) {
+          if (minX <= otherX && maxX >= otherX) {
 
             val y = start.y
 
-            if (other.start.y <= y && other.end.y >= y) {
+            if (other.minY <= y && other.maxY >= y) {
               Some(Point(otherX, y))
             } else {
               None
@@ -77,11 +91,11 @@ object Day3 extends Day {
 
           val otherY = other.start.y
 
-          if (start.y <= otherY && end.y >= otherY) {
+          if (minY <= otherY && maxY >= otherY) {
 
             val x = start.x
 
-            if (other.start.x <= x && other.end.x >= x) {
+            if (other.minX <= x && other.maxX >= x) {
               Some(Point(x, otherY))
             } else {
               None
@@ -124,19 +138,15 @@ object Day3App extends App {
 
   val steps1 :: steps2 :: Nil = createSteps(Day3.lines)
 
-  println(steps1)
-  println(steps2)
-
   val path1 = createPath(steps1)
   val path2 = createPath(steps2)
 
-  println(path1)
-  println(path2)
+//  val steps = createSteps(List("R8,U5,L5,D3", "U7,R6,D4,L4"))
+//  val paths = steps.map(createPath)
+//  println(steps)
+//  println(paths)
+//  println("intersections check: " + intersections(paths(0), paths(1)))
 
-  println("Checks")
-
-  println("intersections check: " + intersections(createSteps(List("R8,U5,L5,D3", "U7,R6,D4,L4")).map(createPath)))
-
-  println("intersections: " + intersections(List(path1, path2)))
+  println("intersections: " + intersections(path1, path2))
 
 }
