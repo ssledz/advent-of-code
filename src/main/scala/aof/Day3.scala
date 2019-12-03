@@ -1,11 +1,29 @@
 package aof
 
-import aof.Day3.{createPath, createSteps, intersections}
+import aof.Day3.{bestSteps, createPath, createSteps, intersections}
 
 import scala.annotation.tailrec
 
 object Day3 extends Day {
   val day = "03"
+
+  def pathTo(path: List[Path], dest: Point): List[Path] = {
+    val (xs, other) = path.span(p => !p.intersect(dest))
+    val p = Path(other.head.start, dest)
+    xs :+ p
+  }
+
+  def countNumberOfSteps(path: List[Path]): Int = path.map(_.length).sum
+
+  def bestSteps(intersections: List[Point], path1: List[Path], path2: List[Path]): Int = {
+
+    val xs: Seq[(List[Path], List[Path])] = intersections.map(dest => (pathTo(path1, dest), pathTo(path2, dest)))
+
+    val ys = xs.map { case (p1, p2) => countNumberOfSteps(p1) + countNumberOfSteps(p2) }
+
+    ys.sorted.head
+
+  }
 
   def createSteps(l: List[String]): List[List[Step]] = l.map(_.split(',').toList.map(Step.apply))
 
@@ -28,14 +46,6 @@ object Day3 extends Day {
       p1 <- path1
       p2 <- path2
     } yield (p1, p2)
-
-    //    println("zipped: " + zipped)
-    //
-    //    val test = zipped.map { case (p1, p2) =>
-    //      s"${p1.intersect(p2)} =>  ${(p1, p2)})"
-    //    }
-    //
-    //    println("test: " + test.mkString("\n"))
 
     val intersections = zipped.map { case (p1, p2) =>
       p1.intersect(p2)
@@ -61,7 +71,9 @@ object Day3 extends Day {
 
     def vertical: Boolean = start.x == end.x
 
-    def length: Int = end.x - start.x + end.y - start.y
+    def length: Int = Math.abs(end.x - start.x + end.y - start.y)
+
+    def intersect(p: Point): Boolean = minX <= p.x && p.x <= maxX && minY <= p.y && p.y <= maxY
 
     def intersect(other: Path): Option[Point] = {
 
@@ -141,12 +153,11 @@ object Day3App extends App {
   val path1 = createPath(steps1)
   val path2 = createPath(steps2)
 
-//  val steps = createSteps(List("R8,U5,L5,D3", "U7,R6,D4,L4"))
-//  val paths = steps.map(createPath)
-//  println(steps)
-//  println(paths)
-//  println("intersections check: " + intersections(paths(0), paths(1)))
+  val (nearest, ints) = intersections(path1, path2)
 
-  println("intersections: " + intersections(path1, path2))
+  println("nearest intersection: " + nearest)
+
+  println("best steps: " + bestSteps(ints, path1, path2))
+
 
 }
