@@ -22,21 +22,20 @@ object Day4 extends Day with App {
 
   }
 
-  def passwords(r: Range, check : String => Boolean): List[String] = r.toList.map(_.toString).filter(check)
+  def passwords(r: Range, check: String => Boolean): List[String] = r.toList.map(_.toString).filter(check)
 
   def additionalPassCheck(p: String): Boolean = {
-    val xs = p.toList
-    val ys = xs.zip(xs.tail).zip(xs.tail.tail)
 
-    ys.foldLeft[(Boolean, Option[Char])]((false, None)) { case ((found, acc), ((a, b), c)) =>
-      if (found) {
-        (found, None)
-      } else acc match {
-        case Some(aa) => if (aa == a) (false, None) else (true, None)
-        case None => if (a == b && b != c) (true, None) else if (b == c && a != b) (false, Some(b)) else (found, None)
+    def go(xs: List[Char], current: Char, cnt: Int, acc: Boolean): Boolean = xs match {
+      case h :: t => {
+        if (h == current) go(t, h, cnt + 1, acc)
+        else go(t, h, 1, acc || cnt == 2)
       }
-    }._1
+      case Nil => acc || cnt == 2
+    }
 
+    val xs = p.toList
+    go(xs.tail, xs.head, 1, false)
   }
 
   def fullPassCheck(p: String): Boolean = passCheck(p) && additionalPassCheck(p)
@@ -54,11 +53,19 @@ object Day4 extends Day with App {
   //1748
   println(s"number of passwords with passCheck in range $range: " + passwords(range, passCheck).length)
 
-  println("112233 full passes check: " + fullPassCheck("112233"))
-  println("123444 full passes check: " + fullPassCheck("123444"))
-  println("111122 full passes check: " + fullPassCheck("111122"))
+  def printFullPassCheck(s: String): Unit = println(s"$s full passes check: " + fullPassCheck(s))
+
+  printFullPassCheck("112233")
+  printFullPassCheck("123444")
+  printFullPassCheck("111122")
+  printFullPassCheck("122345")
+  printFullPassCheck("122245")
+  printFullPassCheck("111111")
+  printFullPassCheck("111122")
+  printFullPassCheck("111223")
 
   println(s"number of passwords with fullPassCheck in range $range: " + passwords(range, fullPassCheck).length)
+
 }
 
 
