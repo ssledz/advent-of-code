@@ -37,7 +37,7 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
     def readValue(mode: Int, address: Int): Int =
       if (mode == 0) m(m(address)) else m(address)
 
-    def arthmeticOp(mode: (Int, Int, Int), f: (Int, Int) => Int): Unit = mode match {
+    def arithmeticOp(mode: (Int, Int, Int), f: (Int, Int) => Int): Unit = mode match {
       case (_, b, c) =>
         val x = readValue(c, pc + 1)
         val y = readValue(b, pc + 2)
@@ -51,9 +51,9 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
     tr(s"opcode: $opc")
 
     opc match {
-      case (Some(mode), 1) => arthmeticOp(mode, _ + _)
+      case (Some(mode), 1) => arithmeticOp(mode, _ + _)
         run(pc + 4)
-      case (Some(mode), 2) => arthmeticOp(mode, _ * _)
+      case (Some(mode), 2) => arithmeticOp(mode, _ * _)
         run(pc + 4)
       case (mode, 3) =>
         m(m(pc + 1)) = input
