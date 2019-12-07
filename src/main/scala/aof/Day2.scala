@@ -3,7 +3,7 @@ package aof
 object Day2 extends Day with App {
   val day = "02"
 
-  val memory: Array[Int] = lines.head.split(',').map(_.toInt)
+  def memory: Array[Int] = lines.head.split(',').map(_.toInt)
 
   def runProgram(m: Array[Int], pc: Int): Array[Int] = {
 
@@ -36,8 +36,32 @@ object Day2 extends Day with App {
   runProgram(Array(2, 4, 4, 5, 99, 0), 0).toList === List(2, 4, 4, 5, 99, 9801)
   runProgram(Array(1, 1, 1, 4, 99, 5, 6, 0, 99), 0).toList === List(30, 1, 1, 4, 2, 5, 6, 0, 99)
 
-  memory(1) = 12
-  memory(2) = 2
+  def run(noun: Int, verb: Int): Int = {
 
-  println(runProgram(memory, 0).toList)
+    val m = memory
+
+    m(1) = noun
+    m(2) = verb
+
+    runProgram(m, 0).toList.head
+
+  }
+
+  println("part1: " + run(12, 2))
+
+  val r = 0 to 99
+
+  val zr = for {
+    a <- r
+    b <- r
+  } yield (a, b)
+
+
+  val Some((noun, verb)) = zr.find { case (noun, verb) =>
+    run(noun, verb) == 19690720
+  }
+
+
+  println("part2: " + (100 * noun + verb))
+
 }
