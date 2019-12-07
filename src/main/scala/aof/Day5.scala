@@ -15,7 +15,9 @@ object Day5 extends Day {
   }
 
   def solutionPartB: String = {
-    ""
+    val c = new IntComputer(memory, 5, 0, false, false)
+    c.runInterpreter
+    c.out.toString
   }
 
 }
@@ -55,7 +57,7 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
         run(pc + 4)
       case (Some(mode), 2) => arithmeticOp(mode, _ * _)
         run(pc + 4)
-      case (mode, 3) =>
+      case (_, 3) =>
         m(m(pc + 1)) = input
         run(pc + 2)
       case (mode, 4) =>
@@ -76,17 +78,18 @@ object IntComputer {
 
   private def toInt(c: Char): Int = c - '0'
 
+  private def toInt(a: Char, b: Char): Int = s"$a$b".toInt
+
   def opcode(n: Int): (Option[(Int, Int, Int)], Int) = {
     if (n == 3 || n == 99) {
       (None, n)
     } else {
       n.toString.toList match {
-        case a :: b :: c :: d :: e :: Nil => (Some((toInt(a), toInt(b), toInt(c))), ("" + d + e).toInt)
-        case b :: c :: d :: e :: Nil => (Some(0, toInt(b), toInt(c)), ("" + d + e).toInt)
-        case c :: d :: e :: Nil => (Some(0, 0, toInt(c)), ("" + d + e).toInt)
-        case '1' :: Nil => (Some(0, 0, 0), 1)
-        case '2' :: Nil => (Some(0, 0, 0), 2)
-        case '4' :: Nil => (Some(0, 0, 0), 4)
+        case a :: b :: c :: d :: e :: Nil => (Some((toInt(a), toInt(b), toInt(c))), toInt(d, e))
+        case b :: c :: d :: e :: Nil => (Some(0, toInt(b), toInt(c)), toInt(d, e))
+        case c :: d :: e :: Nil => (Some(0, 0, toInt(c)), toInt(d, e))
+        case d :: e :: Nil => (Some(0, 0, 0), toInt(d, e))
+        case e :: Nil => (Some(0, 0, 0), toInt(e))
       }
     }
   }
@@ -98,6 +101,5 @@ object Day5App extends App {
 
   println("SolutionPartA: " + Day5.solutionPartA)
   println("SolutionPartB: " + Day5.solutionPartB)
-
 
 }
