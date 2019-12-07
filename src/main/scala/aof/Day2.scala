@@ -5,7 +5,7 @@ object Day2 extends Day with App {
 
   def memory: Array[Int] = lines.head.split(',').map(_.toInt)
 
-  def runProgram(m: Array[Int], pc: Int): Array[Int] = {
+  def runIntInterpreter(m: Array[Int], pc: Int): Array[Int] = {
 
     def op(f: (Int, Int) => Int): Unit = {
       val posA = m(pc + 1)
@@ -18,10 +18,10 @@ object Day2 extends Day with App {
 
     if (opCode == 1) {
       op(_ + _)
-      runProgram(m, pc + 4)
+      runIntInterpreter(m, pc + 4)
     } else if (opCode == 2) {
       op(_ * _)
-      runProgram(m, pc + 4)
+      runIntInterpreter(m, pc + 4)
     } else if (opCode == 99) {
       m
     } else {
@@ -30,11 +30,11 @@ object Day2 extends Day with App {
 
   }
 
-  runProgram(Array(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50), 0).toList === List(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50)
-  runProgram(Array(1, 0, 0, 0, 99), 0).toList === List(2, 0, 0, 0, 99)
-  runProgram(Array(2, 3, 0, 3, 99), 0).toList === List(2, 3, 0, 6, 99)
-  runProgram(Array(2, 4, 4, 5, 99, 0), 0).toList === List(2, 4, 4, 5, 99, 9801)
-  runProgram(Array(1, 1, 1, 4, 99, 5, 6, 0, 99), 0).toList === List(30, 1, 1, 4, 2, 5, 6, 0, 99)
+  runIntInterpreter(Array(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50), 0).toList === List(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50)
+  runIntInterpreter(Array(1, 0, 0, 0, 99), 0).toList === List(2, 0, 0, 0, 99)
+  runIntInterpreter(Array(2, 3, 0, 3, 99), 0).toList === List(2, 3, 0, 6, 99)
+  runIntInterpreter(Array(2, 4, 4, 5, 99, 0), 0).toList === List(2, 4, 4, 5, 99, 9801)
+  runIntInterpreter(Array(1, 1, 1, 4, 99, 5, 6, 0, 99), 0).toList === List(30, 1, 1, 4, 2, 5, 6, 0, 99)
 
   def run(noun: Int, verb: Int): Int = {
 
@@ -43,7 +43,7 @@ object Day2 extends Day with App {
     m(1) = noun
     m(2) = verb
 
-    runProgram(m, 0).toList.head
+    runIntInterpreter(m, 0).toList.head
 
   }
 
