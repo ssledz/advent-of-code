@@ -48,24 +48,30 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
         tr(s"op: m($dest) = $x ? $y = ${f(x, y)}")
     }
 
+    def readInput: Unit = m(m(pc + 1)) = input
+
+    def writeOutput(mode: (Int, Int, Int)): Unit = mode match {
+      case (_, _, 0) => m(output) = m(m(pc + 1))
+      case (_, _, 1) => m(output) = m(pc + 1)
+    }
+
     val opc = opcode(m(pc))
 
     tr(s"opcode: $opc")
 
     opc match {
-      case (Some(mode), 1) => arithmeticOp(mode, _ + _)
+      case (Some(mode), 1) =>
+        arithmeticOp(mode, _ + _)
         run(pc + 4)
-      case (Some(mode), 2) => arithmeticOp(mode, _ * _)
+      case (Some(mode), 2) =>
+        arithmeticOp(mode, _ * _)
         run(pc + 4)
       case (_, 3) =>
-        m(m(pc + 1)) = input
+        readInput
         run(pc + 2)
-      case (mode, 4) =>
+      case (Some(mode), 4) =>
         dbg(s"previous test result (pc=$pc): " + output)
-        mode match {
-          case Some((_, _, 0)) => m(output) = m(m(pc + 1))
-          case Some((_, _, 1)) => m(output) = m(pc + 1)
-        }
+        writeOutput(mode)
         run(pc + 2)
       case (_, 99) => m
       case oc => throw new IllegalStateException(s"Illegal op code=$oc, pc=$pc")
