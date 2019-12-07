@@ -2,6 +2,8 @@ package aof
 
 import aof.IntComputer.opcode
 
+import scala.annotation.tailrec
+
 object Day5 extends Day {
 
   val day: String = "05"
@@ -32,6 +34,7 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
 
   def runInterpreter: Array[Int] = run(0)
 
+  @tailrec
   private def run(pc: Int): Array[Int] = {
 
     tr(s"pc=$pc, memory=${m.toList}")
@@ -55,6 +58,26 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
       case (_, _, 1) => m(output) = m(pc + 1)
     }
 
+    def jumpIf(mode: (Int, Int, Int), f: (Int, Int) => Boolean): Int = mode match {
+      case (_, b, c) =>
+        if (f(readValue(c, pc + 1), 0)) pc + readValue(b, pc + 2) else pc + 3
+    }
+
+    def jumpIfTrue(mode: (Int, Int, Int)): Int = jumpIf(mode, _ != _)
+
+    def jumpIfFalse(mode: (Int, Int, Int)): Int = jumpIf(mode, _ == _)
+
+    def condition(mode: (Int, Int, Int), f: (Int, Int) => Boolean): Unit = mode match {
+      case (_, b, c) =>
+        val first = readValue(c, pc + 1)
+        val second = readValue(b, pc + 2)
+        m(m(pc + 3)) = if (f(first, second)) 1 else 0
+    }
+
+    def lessThan(mode: (Int, Int, Int)): Unit = condition(mode, _ < _)
+
+    def equals(mode: (Int, Int, Int)): Unit = condition(mode, _ == _)
+
     val opc = opcode(m(pc))
 
     tr(s"opcode: $opc")
@@ -73,6 +96,14 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
         dbg(s"previous test result (pc=$pc): " + output)
         writeOutput(mode)
         run(pc + 2)
+      case (Some(mode), 5) => run(jumpIfTrue(mode))
+      case (Some(mode), 6) => run(jumpIfFalse(mode))
+      case (Some(mode), 7) =>
+        lessThan(mode)
+        run(pc + 4)
+      case (Some(mode), 8) =>
+        equals(mode)
+        run(pc + 4)
       case (_, 99) => m
       case oc => throw new IllegalStateException(s"Illegal op code=$oc, pc=$pc")
     }
