@@ -60,7 +60,7 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
 
     def jumpIf(mode: (Int, Int, Int), f: (Int, Int) => Boolean): Int = mode match {
       case (_, b, c) =>
-        if (f(readValue(c, pc + 1), 0)) pc + readValue(b, pc + 2) else pc + 3
+        if (f(readValue(c, pc + 1), 0)) readValue(b, pc + 2) else pc + 3
     }
 
     def jumpIfTrue(mode: (Int, Int, Int)): Int = jumpIf(mode, _ != _)
