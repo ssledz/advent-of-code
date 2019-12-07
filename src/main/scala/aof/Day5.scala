@@ -9,7 +9,7 @@ object Day5 extends Day {
   def memory: Array[Int] = lines.head.split(',').map(_.toInt)
 
   def solutionPartA: String = {
-    val c = new IntComputer(memory, 1)
+    val c = new IntComputer(memory, 1, 0, false, false)
     c.runInterpreter
     c.out.toString
   }
@@ -76,7 +76,7 @@ object IntComputer {
 
   private def toInt(c: Char): Int = c - '0'
 
-  def opcode(n: Int) = {
+  def opcode(n: Int): (Option[(Int, Int, Int)], Int) = {
     if (n == 3 || n == 99) {
       (None, n)
     } else {
@@ -97,12 +97,7 @@ object IntComputer {
 object Day5App extends App {
 
   println("SolutionPartA: " + Day5.solutionPartA)
-  //  println("SolutionPartB: " + Day5.solutionPartB)
+  println("SolutionPartB: " + Day5.solutionPartB)
 
-  //    val memory = Array(1002, 4, 3, 4, 33)
-  //  val memory = Array(1101, 100, -1, 4, 0)
-  //  val memory = Array(3, 0, 4, 0, 99)
-  //  val c = new IntComputer(memory, 11)
-  //  c.runInterpreter
-  //  println(memory.toList)
+
 }
