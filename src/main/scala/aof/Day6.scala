@@ -28,7 +28,24 @@ object Day6 extends Day {
     "" + countOrbits(directOrbits)
   }
 
-  def solutionPartB: String = ""
+  def orbitTransfers(all: Map[String, List[String]], a: String, b: String): List[String] = {
+
+    val as = aOrbits(all, a).reverse
+    val bs = aOrbits(all, b).reverse
+
+    def go(as: List[String], bs: List[String], last: Option[String]): List[String] = (as.headOption, bs.headOption) match {
+      case (Some(a), Some(b)) if a == b => go(as.tail, bs.tail, Some(a))
+      case (Some(a), Some(b)) if a != b => as.reverse ++ last.toList ++ bs.reverse
+      case (Some(_), None) => as.reverse ++ last.toList
+      case (None, Some(_)) => last.toList ++ bs.reverse
+      case (None, None) => List.empty
+    }
+
+    go(as, bs, None)
+
+  }
+
+  def solutionPartB: String = "" + (orbitTransfers(directOrbits, "YOU", "SAN").length - 1)
 }
 
 object Day6App extends App {
