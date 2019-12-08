@@ -11,20 +11,20 @@ object Day5 extends Day {
   def memory: Array[Int] = lines.head.split(',').map(_.toInt)
 
   def solutionPartA: String = {
-    val c = new IntComputer(memory, 1, 0, false, false)
+    val c = new IntComputer(memory, List(1), 0, false, false)
     c.runInterpreter
     c.out.toString
   }
 
   def solutionPartB: String = {
-    val c = new IntComputer(memory, 5, 0, false, false)
+    val c = new IntComputer(memory, List(5), 0, false, false)
     c.runInterpreter
     c.out.toString
   }
 
 }
 
-class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = false, trace: Boolean = false) {
+class IntComputer(m: Array[Int], inputSpec: List[Int], output: Int = 0, debug: Boolean = false, trace: Boolean = false) {
 
   def tr(s: String): Unit = if (trace) println("tr: " + s)
 
@@ -32,10 +32,10 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
 
   def out: Int = m(output)
 
-  def runInterpreter: Array[Int] = run(0)
+  def runInterpreter: Array[Int] = run(0, inputSpec)
 
   @tailrec
-  private def run(pc: Int): Array[Int] = {
+  private def run(pc: Int, input: List[Int]): Array[Int] = {
 
     tr(s"pc=$pc, memory=${m.toList}")
 
@@ -51,7 +51,7 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
         tr(s"op: m($dest) = $x ? $y = ${f(x, y)}")
     }
 
-    def readInput: Unit = m(m(pc + 1)) = input
+    def readInput: Unit = m(m(pc + 1)) = input.head
 
     def writeOutput(mode: (Int, Int, Int)): Unit = mode match {
       case (_, _, 0) => m(output) = m(m(pc + 1))
@@ -85,25 +85,25 @@ class IntComputer(m: Array[Int], input: Int, output: Int = 0, debug: Boolean = f
     opc match {
       case (Some(mode), 1) =>
         arithmeticOp(mode, _ + _)
-        run(pc + 4)
+        run(pc + 4, input)
       case (Some(mode), 2) =>
         arithmeticOp(mode, _ * _)
-        run(pc + 4)
+        run(pc + 4, input)
       case (_, 3) =>
         readInput
-        run(pc + 2)
+        run(pc + 2, input.tail)
       case (Some(mode), 4) =>
         dbg(s"previous test result (pc=$pc): " + output)
         writeOutput(mode)
-        run(pc + 2)
-      case (Some(mode), 5) => run(jumpIfTrue(mode))
-      case (Some(mode), 6) => run(jumpIfFalse(mode))
+        run(pc + 2, input)
+      case (Some(mode), 5) => run(jumpIfTrue(mode), input)
+      case (Some(mode), 6) => run(jumpIfFalse(mode), input)
       case (Some(mode), 7) =>
         lessThan(mode)
-        run(pc + 4)
+        run(pc + 4, input)
       case (Some(mode), 8) =>
         equals(mode)
-        run(pc + 4)
+        run(pc + 4, input)
       case (_, 99) => m
       case oc => throw new IllegalStateException(s"Illegal op code=$oc, pc=$pc")
     }
