@@ -1,6 +1,6 @@
 package aof
 
-import aof.IntComputer.opcode
+import aof.IntComputer.{ReadInputOpcode, opcode}
 
 import scala.annotation.tailrec
 
@@ -11,20 +11,20 @@ object Day5 extends Day {
   def memory: Array[Int] = lines.head.split(',').map(_.toInt)
 
   def solutionPartA: String = {
-    val c = new IntComputer(memory, List(1), 0, false, false)
-    c.runInterpreter
+    val c = new IntComputer(memory)
+    c.runInterpreter(List(1))
     c.out.toString
   }
 
   def solutionPartB: String = {
-    val c = new IntComputer(memory, List(5), 0, false, false)
-    c.runInterpreter
+    val c = new IntComputer(memory)
+    c.runInterpreter(List(5))
     c.out.toString
   }
 
 }
 
-class IntComputer(m: Array[Int], inputSpec: List[Int], output: Int = 0, debug: Boolean = false, trace: Boolean = false) {
+class IntComputer(m: Array[Int], output: Int = 0, pc: Int = 0, val halt: Boolean = false, debug: Boolean = false, trace: Boolean = false) {
 
   def tr(s: String): Unit = if (trace) println("tr: " + s)
 
@@ -32,10 +32,19 @@ class IntComputer(m: Array[Int], inputSpec: List[Int], output: Int = 0, debug: B
 
   def out: Int = m(output)
 
-  def runInterpreter: Array[Int] = run(0, inputSpec)
+  def waitingInput: Boolean = currentOpcode(pc) match {
+    case (_, ReadInputOpcode) => true
+    case _ => false
+  }
+
+  def runInterpreter(input: List[Int]): IntComputer = run(pc, input) match {
+    case (pc, halted) => new IntComputer(m, output, pc, halted, debug, trace)
+  }
+
+  private def currentOpcode(pc: Int): (Option[(Int, Int, Int)], Int) = opcode(m(pc))
 
   @tailrec
-  private def run(pc: Int, input: List[Int]): Array[Int] = {
+  private def run(pc: Int, input: List[Int]): (Int, Boolean) = {
 
     tr(s"pc=$pc, memory=${m.toList}")
 
@@ -78,7 +87,7 @@ class IntComputer(m: Array[Int], inputSpec: List[Int], output: Int = 0, debug: B
 
     def equals(mode: (Int, Int, Int)): Unit = condition(mode, _ == _)
 
-    val opc = opcode(m(pc))
+    val opc = currentOpcode(pc)
 
     tr(s"opcode: $opc")
 
@@ -89,9 +98,13 @@ class IntComputer(m: Array[Int], inputSpec: List[Int], output: Int = 0, debug: B
       case (Some(mode), 2) =>
         arithmeticOp(mode, _ * _)
         run(pc + 4, input)
-      case (_, 3) =>
-        readInput
-        run(pc + 2, input.tail)
+      case (_, ReadInputOpcode) =>
+        if (!input.isEmpty) {
+          readInput
+          run(pc + 2, input.tail)
+        } else {
+          (pc, false)
+        }
       case (Some(mode), 4) =>
         dbg(s"previous test result (pc=$pc): " + output)
         writeOutput(mode)
@@ -104,7 +117,7 @@ class IntComputer(m: Array[Int], inputSpec: List[Int], output: Int = 0, debug: B
       case (Some(mode), 8) =>
         equals(mode)
         run(pc + 4, input)
-      case (_, 99) => m
+      case (_, 99) => (pc, true)
       case oc => throw new IllegalStateException(s"Illegal op code=$oc, pc=$pc")
     }
   }
@@ -112,6 +125,8 @@ class IntComputer(m: Array[Int], inputSpec: List[Int], output: Int = 0, debug: B
 }
 
 object IntComputer {
+
+  val ReadInputOpcode = 3
 
   private def toInt(c: Char): Int = c - '0'
 

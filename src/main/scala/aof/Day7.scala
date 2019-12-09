@@ -1,17 +1,16 @@
 package aof
 
+import scala.annotation.tailrec
+
 object Day7 extends Day {
 
   val day: String = "07"
 
   def memory: Array[Int] = lines.head.split(',').map(_.toInt)
 
-  def createComputer(memory: Array[Int], inA: Int, inB: Int): IntComputer =
-    new IntComputer(memory, List(inA, inB), 0, false, false)
-
   def runAmplifier(memory: Array[Int], inA: Int, inB: Int): Int = {
-    val c = createComputer(memory, inA, inB)
-    c.runInterpreter
+    val c = new IntComputer(memory)
+    c.runInterpreter(List(inA, inB))
     c.out
   }
 
@@ -20,18 +19,22 @@ object Day7 extends Day {
 
     def connectAndRun(xs: Seq[Int]): Int = {
 
-      val memories = xs.map(_ -> memory())
+      val computers = xs.map(seq => new IntComputer(memory()).runInterpreter(List(seq)))
 
-      def go(in: Int, acc: Int): Int = {
-        if (in == 0 && acc > 0) {
-          acc
-        } else {
-          val signal = memories.foldLeft(in) { case (inA, (inB, memory)) => runAmplifier(memory, inB, inA) }
-          go(signal, if (signal == 0) acc else signal)
+      @tailrec
+      def go(in: Int, toProcess: List[IntComputer], computers: List[IntComputer], thrusters: Int): Int = toProcess match {
+        case c :: t => {
+          if (c.halt) {
+            thrusters
+          } else {
+            val cc = c.runInterpreter(List(in))
+            go(cc.out, t, cc :: computers, thrusters)
+          }
         }
+        case Nil => go(in, computers.reverse, List.empty, in)
       }
 
-      go(0, 0)
+      go(0, computers.toList, List.empty, 0)
 
     }
 
@@ -46,7 +49,7 @@ object Day7 extends Day {
   def maxThrusterSignalForSerial(memory: () => Array[Int]): (Int, Seq[Int]) = {
 
     def connectAndRun(xs: Seq[Int]): Int =
-      xs.foldLeft(0)((inA, inB) => runAmplifier(memory(), inB, inA))
+      xs.foldLeft(0)((inB, inA) => runAmplifier(memory(), inA, inB))
 
     val r = 0 to 4
 
