@@ -4,14 +4,20 @@ object Day8 extends Day {
 
   val day: String = "08"
 
-  val image = lines.flatMap(_.toCharArray)
+  private def toInt(c: Char): Int = c - '0'
+
+  val image = lines.flatMap(_.toCharArray).map(toInt)
 
   val width: Int = 25
   val tall: Int = 6
 
-  def toLayers(img: List[Char], w: Int, h: Int): List[List[Char]] = {
+  val Black = 0
+  val White = 1
+  val Transparent = 2
 
-    def go(i: Int, acc: List[List[Char]]): List[List[Char]] = {
+  def toLayers(img: List[Int], w: Int, h: Int): List[List[Int]] = {
+
+    def go(i: Int, acc: List[List[Int]]): List[List[Int]] = {
       if (img.length == i) {
         acc
       } else {
@@ -19,44 +25,43 @@ object Day8 extends Day {
       }
     }
 
-    go(0, List.empty)
+    go(0, List.empty).reverse
   }
 
-  val layers: List[List[Char]] = toLayers(image, width, tall)
+  val layers: List[List[Int]] = toLayers(image, width, tall)
 
   def solutionPartA: String = {
 
-    val (_, x) = layers.map(xs => (xs.count(_ == '0'), xs)).sortBy(_._1).head
+    val (_, x) = layers.map(xs => (xs.count(_ == 0), xs)).sortBy(_._1).head
 
-    val ret = x.count(_ == '1') * x.count(_ == '2')
+    val ret = x.count(_ == 1) * x.count(_ == 2)
 
     "" + ret
   }
 
-  def stackLayers(layers: List[List[Char]]): List[List[Char]] = {
-    val transparetLayer = layers.head.map(_ => )
-    val xs = layers.foldLeft(List(List.empty[Char])) { (stack, layer) =>
-      println("stack.zip(layer)" + stack.zip(layer))
+  def stackLayers(layers: List[List[Int]]): List[List[Int]] = {
+    val zero = layers.head.map(_ => List.empty[Int])
+    val xs = layers.foldLeft(zero) { (stack, layer) =>
       stack.zip(layer).map { case (s, pixel) => pixel :: s }
     }
     xs.map(_.reverse)
   }
 
-  def computePixel(xs: List[Char]): Char = xs.head
+  def computePixel(xs: List[Int]): Int = xs.iterator.find(_ != Transparent).get
 
-  def renderImg(ps: List[Char], w: Int): String = {
-    ps.sliding(w, w).map(_.mkString).mkString("\n")
-  }
+  def renderImg(ps: List[Int], w: Int): String =
+    ps.sliding(w, w)
+      .map(x => x.map(x => if (x != White) " " else "■").mkString)
+      .mkString("\n")
+
 
   def solutionPartB: String = {
     val img = stackLayers(layers).map(computePixel)
-    println("stackLayers(layers): " + stackLayers(layers))
-    println("img" + img)
     renderImg(img, width)
   }
 }
 
 object Day8App extends App {
   println("SolutionPartA: " + Day8.solutionPartA)
-  println("SolutionPartB: " + Day8.solutionPartB)
+  println("SolutionPartB:\n" + Day8.solutionPartB) // FPUAR
 }
