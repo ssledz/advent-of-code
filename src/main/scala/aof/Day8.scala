@@ -31,11 +31,8 @@ object Day8 extends Day {
   val layers: List[List[Int]] = toLayers(image, width, tall)
 
   def solutionPartA: String = {
-
     val (_, x) = layers.map(xs => (xs.count(_ == 0), xs)).sortBy(_._1).head
-
     val ret = x.count(_ == 1) * x.count(_ == 2)
-
     "" + ret
   }
 
