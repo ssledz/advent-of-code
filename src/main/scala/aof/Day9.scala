@@ -11,12 +11,14 @@ object Day9 extends Day {
     "" + c.runInterpreter(List(1)).output.mkString(",")
   }
 
-  def solutionPartB: String = ""
+  def solutionPartB: String = {
+    val c = new IntComputer(memory).extendMemory()
+    "" + c.runInterpreter(List(2)).output.mkString(",")
+  }
 
 }
 
 object Day9App extends App {
-  // your answer is too low, you guessed 1102
   println("SolutionPartA: " + Day9.solutionPartA)
   println("SolutionPartB: " + Day9.solutionPartB)
 }
