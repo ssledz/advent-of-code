@@ -9,7 +9,7 @@ object Day11 extends Day {
 
 }
 
-object Day10App extends App {
+object Day11App extends App {
   println("SolutionPartA: " + Day11.solutionPartA)
   println("SolutionPartB: " + Day11.solutionPartB)
 }
