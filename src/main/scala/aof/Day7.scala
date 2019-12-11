@@ -10,8 +10,8 @@ object Day7 extends Day {
 
   def runAmplifier(memory: Array[Int], inA: Int, inB: Int): Int = {
     val c = new IntComputer(memory)
-    c.runInterpreter(List(inA, inB))
-    c.out
+    val (Some(out), _) = c.runInterpreter(List(inA, inB)).out
+    out
   }
 
 
@@ -27,8 +27,8 @@ object Day7 extends Day {
           if (c.halt) {
             thrusters
           } else {
-            val cc = c.runInterpreter(List(in))
-            go(cc.out, t, cc :: computers, thrusters)
+            val (Some(out), cc) = c.runInterpreter(List(in)).out
+            go(out, t, cc :: computers, thrusters)
           }
         }
         case Nil => go(in, computers.reverse, List.empty, in)

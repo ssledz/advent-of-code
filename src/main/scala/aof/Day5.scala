@@ -8,14 +8,12 @@ object Day5 extends Day {
 
   def solutionPartA: String = {
     val c = new IntComputer(memory)
-    c.runInterpreter(List(1))
-    c.out.toString
+    c.runInterpreter(List(1)).out._1.get.toString
   }
 
   def solutionPartB: String = {
     val c = new IntComputer(memory)
-    c.runInterpreter(List(5))
-    c.out.toString
+    c.runInterpreter(List(5)).out._1.get.toString
   }
 
 }
