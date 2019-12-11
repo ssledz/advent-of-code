@@ -4,16 +4,16 @@ object Day5 extends Day {
 
   val day: String = "05"
 
-  def memory: Array[Int] = lines.head.split(',').map(_.toInt)
+  def memory: Array[Long] = lines.head.split(',').map(_.toLong)
 
   def solutionPartA: String = {
     val c = new IntComputer(memory)
-    c.runInterpreter(List(1)).out._1.get.toString
+    c.runInterpreter(List(1)).output.head.toString
   }
 
   def solutionPartB: String = {
     val c = new IntComputer(memory)
-    c.runInterpreter(List(5)).out._1.get.toString
+    c.runInterpreter(List(5)).output.head.toString
   }
 
 }

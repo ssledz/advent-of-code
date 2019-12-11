@@ -4,15 +4,15 @@ import aof.IntComputer._
 
 import scala.annotation.tailrec
 
-case class IntComputer(m: Array[Int], pc: Int = 0, rb: Int = 0, output: List[Int] = List.empty, halt: Boolean = false, debug: Boolean = false, trace: Boolean = false) {
+case class IntComputer(m: Array[Long], pc: Int = 0, rb: Int = 0, output: List[Long] = List.empty, halt: Boolean = false, debug: Boolean = false, trace: Boolean = false) {
   self =>
 
   def tr(s: String): Unit = if (trace) println("tr: " + s)
 
   def dbg(s: String): Unit = if (debug) println("dbg: " + s)
 
-  def out: (Option[Int], IntComputer) = output.lastOption match {
-    case o@Some(_) => (o, self.copy(output = output.init))
+  def out: (Option[Long], IntComputer) = output.headOption match {
+    case o@Some(_) => (o, self.copy(output = output.tail))
     case None => (None, self)
   }
 
@@ -25,22 +25,22 @@ case class IntComputer(m: Array[Int], pc: Int = 0, rb: Int = 0, output: List[Int
     case (pc, rb, output, halted) => new IntComputer(m, pc, rb, output, halted, debug, trace)
   }
 
-  private def currentOpcode(pc: Int): (Option[(Int, Int, Int)], Int) = opcode(m(pc))
+  private def currentOpcode(pc: Int): (Option[(Int, Int, Int)], Int) = opcode(m(pc).toInt)
 
   @tailrec
-  private def run(pc: Int, rb: Int, input: List[Int], output: List[Int]): (Int, Int, List[Int], Boolean) = {
+  private def run(pc: Int, rb: Int, input: List[Int], output: List[Long]): (Int, Int, List[Long], Boolean) = {
 
     tr(s"pc=$pc, rb=$rb, input=$input, output=$output, memory=${m.toList}")
 
     def resolveAddress(mode: Int, address: Int): Int = mode match {
-      case 0 => m(address)
+      case 0 => m(address).toInt
       case 1 => address
-      case 2 => rb + m(address)
+      case 2 => rb + m(address).toInt
     }
 
-    def readValue(mode: Int, address: Int): Int = m(resolveAddress(mode, address))
+    def readValue(mode: Int, address: Int): Long = m(resolveAddress(mode, address))
 
-    def arithmeticOp(mode: (Int, Int, Int), f: (Int, Int) => Int): Unit = mode match {
+    def arithmeticOp(mode: (Int, Int, Int), f: (Long, Long) => Long): Unit = mode match {
       case (a, b, c) =>
         val x = readValue(c, pc + 1)
         val y = readValue(b, pc + 2)
@@ -51,7 +51,7 @@ case class IntComputer(m: Array[Int], pc: Int = 0, rb: Int = 0, output: List[Int
 
     def readInput(mode: Int): Unit = m(resolveAddress(mode, pc + 1)) = input.head
 
-    def writeOutput(mode: (Int, Int, Int)): Int = mode match {
+    def writeOutput(mode: (Int, Int, Int)): Long = mode match {
       case (_, _, c) => {
         val out = readValue(c, pc + 1)
         tr(s"writeOutput op: readValue${(c, pc + 1)} => ($out)")
@@ -59,16 +59,16 @@ case class IntComputer(m: Array[Int], pc: Int = 0, rb: Int = 0, output: List[Int
       }
     }
 
-    def jumpIf(mode: (Int, Int, Int), f: (Int, Int) => Boolean): Int = mode match {
+    def jumpIf(mode: (Int, Int, Int), f: (Long, Long) => Boolean): Int = mode match {
       case (_, b, c) =>
-        if (f(readValue(c, pc + 1), 0)) readValue(b, pc + 2) else pc + 3
+        if (f(readValue(c, pc + 1), 0)) readValue(b, pc + 2).toInt else pc + 3
     }
 
     def jumpIfTrue(mode: (Int, Int, Int)): Int = jumpIf(mode, _ != _)
 
     def jumpIfFalse(mode: (Int, Int, Int)): Int = jumpIf(mode, _ == _)
 
-    def condition(mode: (Int, Int, Int), f: (Int, Int) => Boolean): Unit = mode match {
+    def condition(mode: (Int, Int, Int), f: (Long, Long) => Boolean): Unit = mode match {
       case (a, b, c) =>
         val first = readValue(c, pc + 1)
         val second = readValue(b, pc + 2)
@@ -108,7 +108,7 @@ case class IntComputer(m: Array[Int], pc: Int = 0, rb: Int = 0, output: List[Int
         equals(mode)
         run(pc + 4, rb, input, output)
       case (Some((_, _, c)), 9) =>
-        run(pc + 2, rb + readValue(c, pc + 1), input, output)
+        run(pc + 2, rb + readValue(c, pc + 1).toInt, input, output)
       case (_, 99) => (pc, rb, output, true)
       case oc => throw new IllegalStateException(s"Illegal op code=$oc, pc=$pc")
     }
@@ -120,8 +120,8 @@ object IntComputer {
 
   val ReadInputOpcode = 3
 
-  def extendMemory(m: Array[Int], amount: Int = 1024): Array[Int] =
-    m ++ (1 to amount).map(_ => 0).toArray
+  def extendMemory(m: Array[Long], amount: Int = 1024): Array[Long] =
+    m ++ (1 to amount).map(_ => 0L).toArray
 
   private def toInt(c: Char): Int = c - '0'
 

@@ -6,16 +6,15 @@ object Day7 extends Day {
 
   val day: String = "07"
 
-  def memory: Array[Int] = lines.head.split(',').map(_.toInt)
+  def memory: Array[Long] = lines.head.split(',').map(_.toLong)
 
-  def runAmplifier(memory: Array[Int], inA: Int, inB: Int): Int = {
+  def runAmplifier(memory: Array[Long], inA: Int, inB: Int): Int = {
     val c = new IntComputer(memory)
-    val (Some(out), _) = c.runInterpreter(List(inA, inB)).out
-    out
+    c.runInterpreter(List(inA, inB)).output.head.toInt
   }
 
 
-  def maxThrusterSignalForLooped(memory: () => Array[Int]): (Int, Seq[Int]) = {
+  def maxThrusterSignalForLooped(memory: () => Array[Long]): (Int, Seq[Int]) = {
 
     def connectAndRun(xs: Seq[Int]): Int = {
 
@@ -28,7 +27,7 @@ object Day7 extends Day {
             thrusters
           } else {
             val (Some(out), cc) = c.runInterpreter(List(in)).out
-            go(out, t, cc :: computers, thrusters)
+            go(out.toInt, t, cc :: computers, thrusters)
           }
         }
         case Nil => go(in, computers.reverse, List.empty, in)
@@ -46,7 +45,7 @@ object Day7 extends Day {
 
   }
 
-  def maxThrusterSignalForSerial(memory: () => Array[Int]): (Int, Seq[Int]) = {
+  def maxThrusterSignalForSerial(memory: () => Array[Long]): (Int, Seq[Int]) = {
 
     def connectAndRun(xs: Seq[Int]): Int =
       xs.foldLeft(0)((inB, inA) => runAmplifier(memory(), inA, inB))
