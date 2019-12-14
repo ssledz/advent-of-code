@@ -2,7 +2,7 @@ package aof
 
 import java.net.URL
 
-import aof.Day10.bestMonitoringStationLocation
+import aof.Day10.{bestMonitoringStationLocation, detectedAsteroids}
 import aof.Day10Test._
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -10,10 +10,30 @@ import scala.io.Source
 
 class Day10Test extends AnyFunSuite {
 
+  test("detectedAsteroids for ex1") {
+    val map = toMap("ex1")
+    val allAsteroids = Day10.allAsteroids(map)
+    assert(detectedAsteroids(allAsteroids, (1, 0)).length == 7)
+    assert(detectedAsteroids(allAsteroids, (4, 0)).length == 7)
+    assert(detectedAsteroids(allAsteroids, (0, 2)).length == 6)
+    assert(detectedAsteroids(allAsteroids, (1, 2)).length == 7)
+    assert(detectedAsteroids(allAsteroids, (2, 2)).length == 7)
+    assert(detectedAsteroids(allAsteroids, (3, 2)).length == 7)
+    assert(detectedAsteroids(allAsteroids, (4, 2)).length == 5)
+    assert(detectedAsteroids(allAsteroids, (4, 3)).length == 7)
+    assert(detectedAsteroids(allAsteroids, (3, 4)).length == 8)
+    assert(detectedAsteroids(allAsteroids, (4, 4)).length == 7)
+  }
+
   test("bestMonitoringStationLocation for ex1") {
-    val (ms, asteroids) = bestMonitoringStationLocation(toMap("ex1"))
+    val map = toMap("ex1")
+    val (ms, asteroids) = bestMonitoringStationLocation(map)
+    println(map.map(_.mkString).mkString("\n"))
+    println("allLocations: " + Day10.allLocations(map))
+    println("allAsteroids: " + Day10.allAsteroids(map))
     println(ms)
     println(asteroids)
+
     assert(ms == (3, 4))
     assert(asteroids.length == 8)
   }
