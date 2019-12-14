@@ -28,11 +28,11 @@ class Day10Test extends AnyFunSuite {
   test("bestMonitoringStationLocation for ex1") {
     val map = toMap("ex1")
     val (ms, asteroids) = bestMonitoringStationLocation(map)
-    println(map.map(_.mkString).mkString("\n"))
-    println("allLocations: " + Day10.allLocations(map))
-    println("allAsteroids: " + Day10.allAsteroids(map))
-    println(ms)
-    println(asteroids)
+//    println(map.map(_.mkString).mkString("\n"))
+//    println("allLocations: " + Day10.allLocations(map))
+//    println("allAsteroids: " + Day10.allAsteroids(map))
+//    println(ms)
+//    println(asteroids)
 
     assert(ms == (3, 4))
     assert(asteroids.length == 8)
