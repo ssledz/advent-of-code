@@ -21,17 +21,17 @@ object Day10 extends Day {
     map(y)(x) == Asteroid
   }
 
-  def detectedAsteroids(allAsteroids: Seq[(Int, Int)], ms: (Int, Int)): List[(Int, Int)] = {
+  def detectedAsteroids(allAsteroids: Seq[(Int, Int)], ms: (Int, Int)): Seq[((Double, Double), Double, (Int, Int))] = {
 
     val (xs, ys) = ms
 
-    val zs = allAsteroids.filter(_ != ms).map { case (x, y) =>
+    allAsteroids.filter(_ != ms).map { case (x, y) =>
 
       val xx = x.toDouble - xs
       val yy = y.toDouble - ys
 
       val (v, d) = if (xx == 0) {
-        ((Math.signum(yy), 0), yy * yy)
+        ((Math.signum(yy), 0.0), yy * yy)
       } else {
         val tg = yy / xx
         val x2j = 1 / (1 + Math.pow(tg, 2))
@@ -42,15 +42,17 @@ object Day10 extends Day {
       (v, d, (x, y))
     }
 
-    zs.groupBy(_._1).view.mapValues { as =>
+  }
+
+  def detectDirectLineOfSight(allAsteroids: Seq[(Int, Int)], ms: (Int, Int)): List[(Int, Int)] = {
+    detectedAsteroids(allAsteroids, ms).groupBy(_._1).view.mapValues { as =>
       as.sortBy(_._2).head._3
     }.values.toList
-
   }
 
   def bestMonitoringStationLocation(map: Vector[Vector[Char]]): ((Int, Int), List[(Int, Int)]) = {
     val all = allAsteroids(map)
-    val xs: Seq[((Int, Int), List[(Int, Int)])] = all.map { ms => (ms, detectedAsteroids(all, ms)) }
+    val xs: Seq[((Int, Int), List[(Int, Int)])] = all.map { ms => (ms, detectDirectLineOfSight(all, ms)) }
     xs.sortBy(_._2.length).last
   }
 
@@ -59,11 +61,42 @@ object Day10 extends Day {
     "" + (location, detected.length)
   }
 
-  def solutionPartB: String = ""
+  def vaporizedSeq(map: Vector[Vector[Char]], ms: (Int, Int)): Seq[(Int, Int)] = {
+    val all = allAsteroids(map)
+    val xs: Seq[(Double, Seq[((Double, Double), Double, (Int, Int))])] = detectedAsteroids(all, ms).groupBy(_._2).toSeq
+    //    xs.sortBy(_._1).map(x => x._2.map(_._3)).flatten
+    val ys: Seq[Seq[((Int, Double), (Int, Int))]] = xs.sortBy(_._1).map(x => x._2.map { case ((vx, vy), _, loc) =>
+      val tg = if (vx == 0) Double.MaxValue else vy / vx
+      val q = (Math.signum(vx), Math.signum(vy)) match {
+        case (x, y) if x >= 0 && y >= 0 => 1
+        case (x, y) if x >= 0 && y <= 0 => 2
+        case (x, y) if x <= 0 && y <= 0 => 3
+        case (x, y) if x <= 0 && y >= 0 => 4
+      }
+      (q, tg) -> loc
+    })
+
+    ys.map { z =>
+      z.sortWith { case (((q1, tg1), _), ((q2, tg2), _)) =>
+        ???
+      }
+    }
+  }
+
+  ???
+}
+
+def solutionPartB: String = {
+val (ms, _) = bestMonitoringStationLocation (map)
+val (x, y) = vaporizedSeq (map, ms).take (200).last
+"" + (x * 100 + y)
+}
 
 }
 
 object Day10App extends App {
   println("SolutionPartA: " + Day10.solutionPartA)
+  //your answer is too low. You guessed 520.
+  //your answer is too low. You guessed 614.
   println("SolutionPartB: " + Day10.solutionPartB)
 }
