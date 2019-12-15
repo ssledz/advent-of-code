@@ -42,7 +42,7 @@ class Day10Test extends AnyFunSuite {
     val (ms, _) = bestMonitoringStationLocation(map)
     val xs = vaporizedSeq(map, ms)
     assert(ms == (11, 13))
-    print(xs)
+    print("xs: " + xs)
     assert(xs.head == (11, 12))
     assert(xs(1) == (12, 1))
     assert(xs(2) == (12, 2))

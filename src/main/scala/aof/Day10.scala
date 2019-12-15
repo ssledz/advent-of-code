@@ -74,28 +74,29 @@ object Day10 extends Day {
 
     val (xs, ys) = ms
 
-    val ps: Seq[((Int, Double, Double), (Int, Int))] = asteroids.map { case (x, y) =>
+    val ps: Seq[((Int, Double, Double, Double), (Int, Int))] = asteroids.map { case (x, y) =>
 
       val xx = x.toDouble - xs
       val yy = y.toDouble - ys
 
       val q = (xx, yy) match {
-        case (x, y) if x >= 0 && y <= 0 => (1, x, y)
-        case (x, y) if x >= 0 && y >= 0 => (2, -x, y)
-        case (x, y) if x <= 0 && y >= 0 => (3, -x, -y)
-        case (x, y) if x <= 0 && y <= 0 => (4, x, -y)
+        case (x, y) if x >= 0 && y <= 0 => (1, x, y, if(y != 0) -x / y else Double.MaxValue)
+        case (x, y) if x >= 0 && y >= 0 => (2, -x, y, if(x != 0) y / x else Double.MaxValue)
+        case (x, y) if x <= 0 && y >= 0 => (3, -x, -y, if(y != 0) -x / y else Double.MaxValue)
+        case (x, y) if x <= 0 && y <= 0 => (4, x, -y, if(x != 0) y / x else Double.MaxValue)
       }
 
       q -> (x, y)
     }
 
-    val rs = ps.sortWith { case (((q1, x1, y1), _), ((q2, x2, y2), _)) =>
+
+
+    val rs = ps.sortWith { case (((q1, x1, y1, tg1), _), ((q2, x2, y2, tg2), _)) =>
       if (q1 < q2) true
-      else if (q1 == q2 && x1 == x2 && y1 <= y2) true
-      else if (q1 == q2 && x1 <= x2) true
+      else if (q1 == q2 && tg1 < tg2) true
       else false
     }
-
+    println(rs)
     rs.map(_._2).toList
 
   }
@@ -110,10 +111,10 @@ object Day10 extends Day {
       if (detected.isEmpty) {
         acc
       } else
-        go(asteroids.filter(x => !(detected contains x)), hitSequence(detected, ms) ::: acc)
+        go(asteroids.filter(x => !(detected contains x)), acc ++ hitSequence(detected, ms))
     }
 
-    go(all, List.empty).reverse
+    go(all, List.empty)
   }
 
   def solutionPartB: String = {
@@ -130,6 +131,7 @@ object Day10App extends App {
   //your answer is too low. You guessed 614.
   //your answer is too low. You guessed 1002.
   //You guessed 1811
-  //  You guessed 629.
+  //You guessed 629.
+  //You guessed 1018.
   println("SolutionPartB: " + Day10.solutionPartB)
 }
