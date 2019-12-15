@@ -29,23 +29,23 @@ object Day11 extends Day {
     case ('^', 1) => '>'
   }
 
-  def travers(start: (Int, Int), facing: Char): List[Panel] = {
-    def go(c: IntComputer, loc: (Int, Int), facing: Char, visited: List[Panel]): List[Panel] = {
+  def travers(start: (Int, Int), facing: Char): Set[Panel] = {
+    def go(c: IntComputer, loc: (Int, Int), facing: Char, visited: Set[Panel]): Set[Panel] = {
       if (c.waitingInput) {
         val currentPanel = visited.find(_.loc == loc).getOrElse(Panel(loc))
         val newC = c.runInterpreter(List(currentPanel.color))
         val direction :: color :: Nil = newC.output
         val newFacing = turn(facing, direction.toInt)
         val paintedPanel = currentPanel.paint(color)
-        go(newC.copy(output = List.empty), move(loc, newFacing), newFacing, paintedPanel :: visited)
+        go(newC.copy(output = List.empty), move(loc, newFacing), newFacing, visited + paintedPanel)
       } else visited
     }
 
-    go(new IntComputer(memory).extendMemory().runInterpreter(List.empty), start, '^', List.empty)
+    go(new IntComputer(memory).extendMemory().runInterpreter(List.empty), start, '^', Set.empty)
   }
 
   def solutionPartA: String = {
-    "" + travers((0, 0), '^').filter(_.painted).length
+    "" + travers((0, 0), '^').filter(_.painted).size
   }
 
   def solutionPartB: String = ""
@@ -58,6 +58,7 @@ object Day11 extends Day {
 
 object Day11App extends App {
   //your answer is too high. You guessed 9891.
+  //your answer is too low. You guessed 1278.
   println("SolutionPartA: " + Day11.solutionPartA)
   println("SolutionPartB: " + Day11.solutionPartB)
 }
