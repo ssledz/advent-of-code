@@ -36,7 +36,7 @@ object Day11 extends Day {
         val (direction :: color :: Nil, newC) = c.runInterpreter(List(currentPanel.color)).readOutput
         val newFacing = turn(facing, direction.toInt)
         val paintedPanel = currentPanel.paint(color)
-        go(newC, move(loc, newFacing), newFacing, visited + paintedPanel)
+        go(newC, move(loc, newFacing), newFacing, visited.filterNot(_.loc == loc) + paintedPanel)
       } else visited
     }
 
@@ -56,8 +56,6 @@ object Day11 extends Day {
 }
 
 object Day11App extends App {
-  //your answer is too high. You guessed 9891.
-  //your answer is too low. You guessed 1278.
   println("SolutionPartA: " + Day11.solutionPartA)
   println("SolutionPartB: " + Day11.solutionPartB)
 }
