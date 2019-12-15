@@ -39,7 +39,7 @@ object Day10 extends Day {
         val x2j = 1 / (1 + Math.pow(tg, 2))
         val xj = Math.sqrt(x2j)
         val yj = Math.sqrt(1 - x2j)
-        ((xj * Math.signum(xx), yj * Math.signum(yy)), Math.pow(xj * x, 2) + Math.pow(yj * y, 2))
+        ((xj * Math.signum(xx), yj * Math.signum(yy)), Math.pow(xx, 2) + Math.pow(yy, 2))
       }
       (v, d, (x, y))
     }
@@ -88,7 +88,7 @@ object Day10 extends Day {
       else if (q1 == q2 && tg1 < tg2) true
       else false
     }
-    println("" + rs.length + " => " + rs)
+//    println("" + rs.length + " => " + rs)
     rs.map(_._2).toList
 
   }
