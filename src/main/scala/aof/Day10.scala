@@ -1,5 +1,7 @@
 package aof
 
+import scala.annotation.tailrec
+
 object Day10 extends Day {
 
   val day: String = "10"
@@ -61,30 +63,57 @@ object Day10 extends Day {
     "" + (location, detected.length)
   }
 
-  def vaporizedSeq(map: Vector[Vector[Char]], ms: (Int, Int)): Seq[(Int, Int)] = {
-    val all = allAsteroids(map)
-    val xs: Seq[(Double, Seq[((Double, Double), Double, (Int, Int))])] = detectedAsteroids(all, ms).groupBy(_._2).toSeq
-    val ys: Seq[Seq[((Int, Double), (Int, Int))]] = xs.sortBy(_._1).map(x => x._2.map { case ((vx, vy), _, loc) =>
-      val tg = if (vx == 0) Double.MaxValue else vy / vx
-      val q = (Math.signum(vx), Math.signum(vy)) match {
-        case (x, y) if x >= 0 && y >= 0 => 4
-        case (x, y) if x >= 0 && y <= 0 => 3
-        case (x, y) if x <= 0 && y <= 0 => 2
-        case (x, y) if x <= 0 && y >= 0 => 1
-      }
-      (q, tg) -> loc
-    })
+  //  def generateLaserBeam(ms: (Int, Int)): Seq[(Double, Double)] = {
+  //    val (xs, ys) = ms
+  //    val r = 0 until 360
+  //    val d2rad = 2 * Math.PI / 360
+  //    r.map(x => x * d2rad).map(rad => (Math.sin(rad) - xs, Math.cos(rad) - ys))
+  //  }
 
-    val zs = ys.map { z =>
-      z.sortWith { case (((q1, tg1), _), ((q2, tg2), _)) =>
-        if (q1 < q2) true
-        else if (q1 == q2 && tg1 < tg2) true
-        else false
+  def hitSequence(asteroids: Seq[(Int, Int)], ms: (Int, Int)): List[(Int, Int)] = {
+
+    val (xs, ys) = ms
+
+    val ps: Seq[((Int, Double, Double), (Int, Int))] = asteroids.map { case (x, y) =>
+
+      val xx = x.toDouble - xs
+      val yy = y.toDouble - ys
+
+      val q = (xx, yy) match {
+        case (x, y) if x >= 0 && y <= 0 => (1, x, y)
+        case (x, y) if x >= 0 && y >= 0 => (2, -x, y)
+        case (x, y) if x <= 0 && y >= 0 => (3, -x, -y)
+        case (x, y) if x <= 0 && y <= 0 => (4, x, -y)
       }
+
+      q -> (x, y)
     }
 
-    zs.map(_.map(_._2)).flatten
+    val rs = ps.sortWith { case (((q1, x1, y1), _), ((q2, x2, y2), _)) =>
+      if (q1 < q2) true
+      else if (q1 == q2 && x1 == x2 && y1 <= y2) true
+      else if (q1 == q2 && x1 <= x2) true
+      else false
+    }
 
+    rs.map(_._2).toList
+
+  }
+
+  def vaporizedSeq(map: Vector[Vector[Char]], ms: (Int, Int)): Seq[(Int, Int)] = {
+
+    val all: Seq[(Int, Int)] = allAsteroids(map)
+
+    @tailrec
+    def go(asteroids: Seq[(Int, Int)], acc: List[(Int, Int)]): List[(Int, Int)] = {
+      val detected = detectDirectLineOfSight(asteroids, ms)
+      if (detected.isEmpty) {
+        acc
+      } else
+        go(asteroids.filter(x => !(detected contains x)), hitSequence(detected, ms) ::: acc)
+    }
+
+    go(all, List.empty).reverse
   }
 
   def solutionPartB: String = {
@@ -99,5 +128,8 @@ object Day10App extends App {
   println("SolutionPartA: " + Day10.solutionPartA)
   //your answer is too low. You guessed 520.
   //your answer is too low. You guessed 614.
+  //your answer is too low. You guessed 1002.
+  //You guessed 1811
+  //  You guessed 629.
   println("SolutionPartB: " + Day10.solutionPartB)
 }
