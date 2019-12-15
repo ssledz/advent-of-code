@@ -33,13 +33,13 @@ object Day10 extends Day {
       val yy = y.toDouble - ys
 
       val (v, d) = if (xx == 0) {
-        ((Math.signum(yy), 0.0), yy * yy)
+        ((0.0, Math.signum(yy)), yy * yy)
       } else {
         val tg = yy / xx
         val x2j = 1 / (1 + Math.pow(tg, 2))
         val xj = Math.sqrt(x2j)
         val yj = Math.sqrt(1 - x2j)
-        ((xj + Math.signum(xx), yj * Math.signum(yy)), Math.pow(xj * x, 2) + Math.pow(yj * y, 2))
+        ((xj * Math.signum(xx), yj * Math.signum(yy)), Math.pow(xj * x, 2) + Math.pow(yj * y, 2))
       }
       (v, d, (x, y))
     }
