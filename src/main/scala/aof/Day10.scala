@@ -63,13 +63,6 @@ object Day10 extends Day {
     "" + (location, detected.length)
   }
 
-  //  def generateLaserBeam(ms: (Int, Int)): Seq[(Double, Double)] = {
-  //    val (xs, ys) = ms
-  //    val r = 0 until 360
-  //    val d2rad = 2 * Math.PI / 360
-  //    r.map(x => x * d2rad).map(rad => (Math.sin(rad) - xs, Math.cos(rad) - ys))
-  //  }
-
   def hitSequence(asteroids: Seq[(Int, Int)], ms: (Int, Int)): List[(Int, Int)] = {
 
     val (xs, ys) = ms
@@ -80,15 +73,14 @@ object Day10 extends Day {
       val yy = y.toDouble - ys
 
       val q = (xx, yy) match {
-        case (x, y) if x >= 0 && y <= 0 => (1, x, y, if(y != 0) -x / y else Double.MaxValue)
-        case (x, y) if x >= 0 && y >= 0 => (2, -x, y, if(x != 0) y / x else Double.MaxValue)
-        case (x, y) if x <= 0 && y >= 0 => (3, -x, -y, if(y != 0) -x / y else Double.MaxValue)
-        case (x, y) if x <= 0 && y <= 0 => (4, x, -y, if(x != 0) y / x else Double.MaxValue)
+        case (x, y) if x >= 0 && y <= 0 => (1, x, y, if (y != 0) -x / y else Double.MaxValue)
+        case (x, y) if x >= 0 && y >= 0 => (2, -x, y, if (x != 0) y / x else Double.MaxValue)
+        case (x, y) if x <= 0 && y >= 0 => (3, -x, -y, if (y != 0) -x / y else Double.MaxValue)
+        case (x, y) if x <= 0 && y <= 0 => (4, x, -y, if (x != 0) y / x else Double.MaxValue)
       }
 
       q -> (x, y)
     }
-
 
 
     val rs = ps.sortWith { case (((q1, x1, y1, tg1), _), ((q2, x2, y2, tg2), _)) =>
@@ -96,7 +88,7 @@ object Day10 extends Day {
       else if (q1 == q2 && tg1 < tg2) true
       else false
     }
-    println(rs)
+    println("" + rs.length + " => " + rs)
     rs.map(_._2).toList
 
   }
