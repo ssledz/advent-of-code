@@ -88,7 +88,7 @@ object Day10 extends Day {
       else if (q1 == q2 && tg1 < tg2) true
       else false
     }
-//    println("" + rs.length + " => " + rs)
+    //    println("" + rs.length + " => " + rs)
     rs.map(_._2).toList
 
   }
@@ -119,11 +119,5 @@ object Day10 extends Day {
 
 object Day10App extends App {
   println("SolutionPartA: " + Day10.solutionPartA)
-  //your answer is too low. You guessed 520.
-  //your answer is too low. You guessed 614.
-  //your answer is too low. You guessed 1002.
-  //You guessed 1811
-  //You guessed 629.
-  //You guessed 1018.
   println("SolutionPartB: " + Day10.solutionPartB)
 }
