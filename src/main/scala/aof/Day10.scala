@@ -64,33 +64,34 @@ object Day10 extends Day {
   def vaporizedSeq(map: Vector[Vector[Char]], ms: (Int, Int)): Seq[(Int, Int)] = {
     val all = allAsteroids(map)
     val xs: Seq[(Double, Seq[((Double, Double), Double, (Int, Int))])] = detectedAsteroids(all, ms).groupBy(_._2).toSeq
-    //    xs.sortBy(_._1).map(x => x._2.map(_._3)).flatten
     val ys: Seq[Seq[((Int, Double), (Int, Int))]] = xs.sortBy(_._1).map(x => x._2.map { case ((vx, vy), _, loc) =>
       val tg = if (vx == 0) Double.MaxValue else vy / vx
       val q = (Math.signum(vx), Math.signum(vy)) match {
-        case (x, y) if x >= 0 && y >= 0 => 1
-        case (x, y) if x >= 0 && y <= 0 => 2
-        case (x, y) if x <= 0 && y <= 0 => 3
-        case (x, y) if x <= 0 && y >= 0 => 4
+        case (x, y) if x >= 0 && y >= 0 => 4
+        case (x, y) if x >= 0 && y <= 0 => 3
+        case (x, y) if x <= 0 && y <= 0 => 2
+        case (x, y) if x <= 0 && y >= 0 => 1
       }
       (q, tg) -> loc
     })
 
-    ys.map { z =>
+    val zs = ys.map { z =>
       z.sortWith { case (((q1, tg1), _), ((q2, tg2), _)) =>
-        ???
+        if (q1 < q2) true
+        else if (q1 == q2 && tg1 < tg2) true
+        else false
       }
     }
+
+    zs.map(_.map(_._2)).flatten
+
   }
 
-  ???
-}
-
-def solutionPartB: String = {
-val (ms, _) = bestMonitoringStationLocation (map)
-val (x, y) = vaporizedSeq (map, ms).take (200).last
-"" + (x * 100 + y)
-}
+  def solutionPartB: String = {
+    val (ms, _) = bestMonitoringStationLocation(map)
+    val (x, y) = vaporizedSeq(map, ms).take(200).last
+    "" + (x * 100 + y)
+  }
 
 }
 
