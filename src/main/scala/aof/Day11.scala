@@ -29,7 +29,7 @@ object Day11 extends Day {
     case ('^', 1) => '>'
   }
 
-  def travers(start: (Int, Int), facing: Char): Set[Panel] = {
+  def travers(start: (Int, Int), facing: Char, panels: Set[Panel] = Set.empty): Set[Panel] = {
     def go(c: IntComputer, loc: (Int, Int), facing: Char, visited: Set[Panel]): Set[Panel] = {
       if (c.waitingInput) {
         val currentPanel = visited.find(_.loc == loc).getOrElse(Panel(loc))
@@ -40,14 +40,38 @@ object Day11 extends Day {
       } else visited
     }
 
-    go(new IntComputer(memory).extendMemory().runInterpreter(List.empty), start, '^', Set.empty)
+    go(new IntComputer(memory).extendMemory().runInterpreter(List.empty), start, '^', panels)
   }
 
   def solutionPartA: String = {
     "" + travers((0, 0), '^').filter(_.painted).size
   }
 
-  def solutionPartB: String = ""
+  def draw(ps: Set[Panel]): String = {
+    val xs = ps.map(_.loc._1).toList.sorted
+    val ys = ps.map(_.loc._2).toList.sorted
+
+    val xr = xs.min - 1 to xs.max + 1
+    val yr = ys.min - 1 to ys.max + 1
+
+    val zs = for {
+      y <- yr
+      x <- xr
+    } yield {
+      val c = ps.find(_.loc == (x, y)).map(_.color).getOrElse(Black)
+      if (c == Black) '.' else '#'
+    }
+
+    zs.sliding(xr.length, xr.length).map(_.mkString).mkString("\n")
+
+  }
+
+  def solutionPartB: String = {
+
+    val xs = travers((0, 0), '^', Set(Panel((0, 0), White)))
+
+    "\n" + draw(xs)
+  }
 
   case class Panel(loc: (Int, Int), color: Int = Black, painted: Boolean = false) {
     def paint(c: Long): Panel = this.copy(color = c.toInt, painted = true)
