@@ -13,7 +13,9 @@ case class IntComputer(m: Array[Long], pc: Int = 0, rb: Int = 0, output: List[Lo
 
   def extendMemory(amount: Int = 1024): IntComputer = self.copy(m = IntComputer.extendMemory(m, amount))
 
-  def out: (Option[Long], IntComputer) = output.headOption match {
+  def readOutput: (List[Long], IntComputer) = (output, self.copy(output = List.empty))
+
+  def readOneOutput: (Option[Long], IntComputer) = output.headOption match {
     case o@Some(_) => (o, self.copy(output = output.tail))
     case None => (None, self)
   }

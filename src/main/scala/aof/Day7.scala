@@ -26,7 +26,7 @@ object Day7 extends Day {
           if (c.halt) {
             thrusters
           } else {
-            val (Some(out), cc) = c.runInterpreter(List(in)).out
+            val (Some(out), cc) = c.runInterpreter(List(in)).readOneOutput
             go(out.toInt, t, cc :: computers, thrusters)
           }
         }

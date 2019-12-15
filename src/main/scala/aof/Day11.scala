@@ -33,11 +33,10 @@ object Day11 extends Day {
     def go(c: IntComputer, loc: (Int, Int), facing: Char, visited: Set[Panel]): Set[Panel] = {
       if (c.waitingInput) {
         val currentPanel = visited.find(_.loc == loc).getOrElse(Panel(loc))
-        val newC = c.runInterpreter(List(currentPanel.color))
-        val direction :: color :: Nil = newC.output
+        val (direction :: color :: Nil, newC) = c.runInterpreter(List(currentPanel.color)).readOutput
         val newFacing = turn(facing, direction.toInt)
         val paintedPanel = currentPanel.paint(color)
-        go(newC.copy(output = List.empty), move(loc, newFacing), newFacing, visited + paintedPanel)
+        go(newC, move(loc, newFacing), newFacing, visited + paintedPanel)
       } else visited
     }
 
