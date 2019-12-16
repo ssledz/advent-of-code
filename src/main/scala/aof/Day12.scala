@@ -1,7 +1,5 @@
 package aof
 
-import aof.Day12.{solutionPartA, solutionPartB}
-
 object Day12 extends Day {
 
   val day: String = "12"
@@ -18,19 +16,30 @@ object Day12 extends Day {
     (Vector3d(xa, ya, za), Vector3d(xb, yb, zb))
   }
 
-  def applyGravity(xs: Seq[Moon]): Seq[Moon] = {
+  def pairs[A](xs: Seq[A]): Seq[(A, A)] = {
     val ys = for {
-      a <- xs
-      b <- xs if a != b
-    } yield {
+      x <- xs
+      y <- xs if x != y
+    } yield (x, y)
+    ys.foldLeft(Seq.empty[(A, A)]) { case (acc, p@(x, y)) =>
+      if (acc contains(y, x)) {
+        acc
+      } else acc :+ p
+    }
+  }
+
+  def applyGravity(xs: Seq[Moon]): Seq[Moon] = {
+
+    val ys = pairs(xs).map { case (a, b) =>
       val (dva, dvb) = gravityChange(a, b)
       List(a -> dva, b -> dvb)
     }
 
-    ys.flatten.groupBy(_._1).toList.map { case (moon, zs) =>
+    val yys = ys.flatten.groupBy(_._1).toList.map { case (moon, zs) =>
       val dv = zs.map(_._2).foldLeft(Vector3d(0, 0, 0))(_ + _)
       moon.copy(velocity = moon.velocity + dv)
     }
+    yys
   }
 
   def applyVelocity(xs: Seq[Moon]): Seq[Moon] =
@@ -43,9 +52,15 @@ object Day12 extends Day {
     f(xs)
   }
 
+  def steps(xs: Seq[Moon], n: Int): Seq[Moon] =
+    (1 to n).foldLeft(xs)((ms, _) => step(ms).toList)
+
+  def totalEnergy(xs: Seq[Moon]): Int =
+    xs.foldLeft(0)((acc, m) => acc + m.totalEnergy)
+
   def solutionPartA: String = {
-    val xs = (1 to 1000).foldLeft(moons)((ms, _) => step(ms).toList)
-    "" + xs.foldLeft(0)((acc, m) => acc + m.totalEnergy)
+    val xs = steps(moons, 1000)
+    "" + totalEnergy(xs)
   }
 
   def solutionPartB: String = ""
@@ -55,9 +70,9 @@ object Day12 extends Day {
   }
 
   case class Moon(pos: Vector3d, velocity: Vector3d = Vector3d(0, 0, 0)) {
-    def pot: Int = pos.x + pos.y + pos.z
+    def pot: Int = Math.abs(pos.x) + Math.abs(pos.y) + Math.abs(pos.z)
 
-    def kin: Int = velocity.x + velocity.y + velocity.z
+    def kin: Int = Math.abs(velocity.x) + Math.abs(velocity.y) + Math.abs(velocity.z)
 
     def totalEnergy: Int = pot * kin
   }
@@ -70,11 +85,9 @@ object Day12 extends Day {
       case MoonRegex(x, y, z) => Moon(Vector3d(x.toInt, y.toInt, z.toInt))
     }
   }
-
 }
 
 object Day12App extends App {
-  // You guessed 96.
-  println("SolutionPartA: " + solutionPartA)
-  println("SolutionPartB: " + solutionPartB)
+  println("SolutionPartA: " + Day12.solutionPartA)
+  println("SolutionPartB: " + Day12.solutionPartB)
 }
