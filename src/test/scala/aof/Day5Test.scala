@@ -19,10 +19,17 @@ class Day5Test extends AnyFunSuite {
   }
 
   test("run program (3, 0, 4, 0, 99)") {
-    val memory = Array(3L, 0, 4, 0, 99)
+    def memory = Array(3L, 0, 4, 0, 99)
+
     val c = new IntComputer(memory)
     c.runInterpreter(List(11))
-    assert(memory.toList === List(11L, 0, 4, 0, 99))
+    assert(c.m.toList === List(11L, 0, 4, 0, 99))
+
+    val c2 = new IntComputer(memory).runInterpreter(List.empty)
+    assert(c2.waitingInput)
+    assert(c2.output == List.empty)
+    assert(c2.runInterpreter(List(-1)).output == List(-1))
+
   }
 
 }

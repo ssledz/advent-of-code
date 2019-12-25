@@ -7,9 +7,9 @@ import scala.annotation.tailrec
 case class IntComputer(m: Array[Long], pc: Int = 0, rb: Int = 0, output: List[Long] = List.empty, halt: Boolean = false, debug: Boolean = false, trace: Boolean = false) {
   self =>
 
-  def tr(s: String): Unit = if (trace) println("tr: " + s)
+  def tr(s: => String): Unit = if (trace) println("tr: " + s)
 
-  def dbg(s: String): Unit = if (debug) println("dbg: " + s)
+  def dbg(s: => String): Unit = if (debug) println("dbg: " + s)
 
   def extendMemory(amount: Int = 1024): IntComputer = self.copy(m = IntComputer.extendMemory(m, amount))
 
@@ -34,7 +34,7 @@ case class IntComputer(m: Array[Long], pc: Int = 0, rb: Int = 0, output: List[Lo
   @tailrec
   private def run(pc: Int, rb: Int, input: List[Int], output: List[Long]): (Int, Int, List[Long], Boolean) = {
 
-    tr(s"pc=$pc, rb=$rb, input=$input, output=$output, memory=${m.toList}")
+    tr(s"pc=$pc, rb=$rb, input=$input, output=${output.take(10)}, memory=${m.toList.take(10)}")
 
     def resolveAddress(mode: Int, address: Int): Int = mode match {
       case 0 => m(address).toInt
@@ -42,7 +42,10 @@ case class IntComputer(m: Array[Long], pc: Int = 0, rb: Int = 0, output: List[Lo
       case 2 => rb + m(address).toInt
     }
 
-    def readValue(mode: Int, address: Int): Long = m(resolveAddress(mode, address))
+    def readValue(mode: Int, address: Int): Long = {
+      tr(s"readValue : m(${resolveAddress(mode, address)}) = ${m(resolveAddress(mode, address))}")
+      m(resolveAddress(mode, address))
+    }
 
     def arithmeticOp(mode: (Int, Int, Int), f: (Long, Long) => Long): Unit = mode match {
       case (a, b, c) =>
@@ -53,12 +56,15 @@ case class IntComputer(m: Array[Long], pc: Int = 0, rb: Int = 0, output: List[Lo
         tr(s"arithmeticOp: m($dest) = $x ? $y = ${f(x, y)}")
     }
 
-    def readInput(mode: Int): Unit = m(resolveAddress(mode, pc + 1)) = input.head
+    def readInput(mode: Int): Unit = {
+      m(resolveAddress(mode, pc + 1)) = input.head
+      tr(s"readInput m(${resolveAddress(mode, pc + 1)}) = ${input.head}")
+    }
 
     def writeOutput(mode: (Int, Int, Int)): Long = mode match {
       case (_, _, c) => {
         val out = readValue(c, pc + 1)
-        tr(s"writeOutput op: readValue${(c, pc + 1)} => ($out)")
+        tr(s"write m(${pc + 1}) = $out to output")
         out
       }
     }
@@ -76,6 +82,7 @@ case class IntComputer(m: Array[Long], pc: Int = 0, rb: Int = 0, output: List[Lo
       case (a, b, c) =>
         val first = readValue(c, pc + 1)
         val second = readValue(b, pc + 2)
+        tr(s"m(${resolveAddress(a, pc + 3)}) = f($first, $second) = ${if (f(first, second)) 1 else 0}")
         m(resolveAddress(a, pc + 3)) = if (f(first, second)) 1 else 0
     }
 
