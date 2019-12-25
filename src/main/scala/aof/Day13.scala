@@ -6,7 +6,16 @@ object Day13 extends Day {
 
   val day: String = "13"
 
-  def solutionPartA: String = ""
+  val Block = 2
+
+  def memory: Array[Long] = lines.head.split(',').map(_.toLong)
+
+  def solutionPartA: String = {
+    "" + IntComputer(memory).extendMemory().runInterpreter(List.empty).output
+      .sliding(3, 3)
+      .map(x => x.head)
+      .count(_ == Block)
+  }
 
   def solutionPartB: String = ""
 
