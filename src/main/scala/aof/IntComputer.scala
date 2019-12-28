@@ -25,14 +25,14 @@ case class IntComputer(m: Array[Long], pc: Int = 0, rb: Int = 0, output: List[Lo
     case _ => false
   }
 
-  def runInterpreter(input: List[Int]): IntComputer = run(pc, rb, input, output) match {
+  def runInterpreter(input: Seq[Int]): IntComputer = run(pc, rb, input, output) match {
     case (pc, rb, output, halted) => new IntComputer(m, pc, rb, output, halted, debug, trace)
   }
 
   private def currentOpcode(pc: Int): (Option[(Int, Int, Int)], Int) = opcode(m(pc).toInt)
 
   @tailrec
-  private def run(pc: Int, rb: Int, input: List[Int], output: List[Long]): (Int, Int, List[Long], Boolean) = {
+  private def run(pc: Int, rb: Int, input: Seq[Int], output: List[Long]): (Int, Int, List[Long], Boolean) = {
 
     tr(s"pc=$pc, rb=$rb, input=$input, output=${output.take(10)}, memory=${m.toList.take(10)}")
 

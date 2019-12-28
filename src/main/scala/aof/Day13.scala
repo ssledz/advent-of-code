@@ -31,13 +31,16 @@ object Day13 extends Day {
   def toTileMap(xs: List[Long]): Map[(Int, Int), Int] =
     Map(xs.reverse.sliding(3, 3).map(x => ((x(0).toInt, x(1).toInt), x(2).toInt)).toSeq: _*)
 
+  def maxCo(map: Map[(Int, Int), Int]): (Int, Int) =
+    map.keys.foldLeft((Int.MinValue.toInt, Int.MinValue.toInt)) { case ((maxX, maxY), (x, y)) =>
+      (maxX max x, maxY max y)
+    }
+
   def writeMap(xs: List[Long]): (Map[(Int, Int), Int], String) = {
 
     val map: Map[(Int, Int), Int] = toTileMap(xs)
 
-    val (maxX, maxY) = map.keys.foldLeft((Int.MinValue.toInt, Int.MinValue.toInt)) { case ((maxX, maxY), (x, y)) =>
-      (maxX max x, maxY max y)
-    }
+    val (maxX, maxY) = maxCo(map)
 
     val str = (for (y <- 0 to maxY) yield {
       (0 to maxX).map(x => Tile.byId(map((x, y)))).mkString
@@ -68,16 +71,27 @@ object Day13 extends Day {
     m
   }
 
+  private def find(map: Map[(Int, Int), Int], id: Int): (Int, Int) =
+    map.find { case (_, x) => x == id }.map(_._1).get
+
   def playGame: String = {
 
-    def score(map: Map[(Int, Int), Int]): Int =
-      map.get((-1, 0)).getOrElse(0)
+    def ballCo(map: Map[(Int, Int), Int]): (Int, Int) = find(map, Tile.Ball._1)
 
-    def numberOfBlocks(map: Map[(Int, Int), Int]): Int =
-      map.count(x => x._2 == Tile.Block._1)
+    def paddleCo(map: Map[(Int, Int), Int]): (Int, Int) = find(map, Tile.HorizontalPaddle._1)
+
+    def score(map: Map[(Int, Int), Int]): Int = map.get((-1, 0)).getOrElse(0)
+
+    def numberOfBlocks(map: Map[(Int, Int), Int]): Int = map.count(x => x._2 == Tile.Block._1)
+
+    val (maxX, maxY) = {
+      val c = IntComputer(initMemory).extendMemory().runInterpreter(List.empty)
+      val tm = toTileMap(c.output)
+      maxCo(tm)
+    }
 
     @tailrec
-    def go(moves: List[List[Int]], best: (List[Int], Int)): List[Int] = moves match {
+    def go(moves: List[Vector[Int]], best: (Vector[Int], Int)): Vector[Int] = moves match {
       case h :: t => {
         val c = IntComputer(initMemory).extendMemory().runInterpreter(h)
         val tm = toTileMap(c.output)
@@ -87,19 +101,31 @@ object Day13 extends Day {
         } else if (!c.waitingInput) {
           go(t, if (nob < best._2) (h, nob) else best)
         } else {
-          go((h :+ 0) :: (h :+ -1) :: (h :+ 1) :: t, if (nob < best._2) (h, nob) else best)
+          val newBest = if (nob < best._2) {
+            println("nob: " + nob)
+            (h, nob)
+          } else best
+
+          val (xb, _) = ballCo(tm)
+
+          val (xp, _) = paddleCo(tm)
+
+          val moves = if (xp == 0) List(0, 1) else if (xp == maxX) List(-1, 0) else List(-1, 0, 1)
+
+          val xs = if (xp < xb) moves.reverse else if (xp > xb) moves else moves.sortBy(x => x.abs)
+
+          go(xs.map(x => h :+ x) ::: t, newBest)
         }
       }
       case Nil => best._1
     }
 
-    val xs = go(List(List(0), List(-1), List(1)), (List.empty, Int.MaxValue))
+    val xs = go(List(Vector(0), Vector(-1), Vector(1)), (Vector.empty, Int.MaxValue))
 
     val c = IntComputer(initMemory).extendMemory().runInterpreter(xs)
 
     val (m, mStr) = writeMap(c.output)
 
-    //score(m)
     s"\n moves: ${xs}\n" + mStr
 
   }
