@@ -21,33 +21,15 @@ object Day14 extends Day {
         val (all, _) = acc.get(Ore).getOrElse((0, 0))
         go(t, acc.updated(Ore, (all + w, 0)))
       }
-      case (chem, w) :: t => {
-        val r = reactions(chem)
-        val m = r.input.foldLeft(acc) { case (mm, (chem, need)) =>
-          val (all, left) = mm.get(chem).getOrElse((0, 0))
-          if (need <= left) {
-            mm.updated(chem, (all, left - need))
-          } else {
-            val rr = reactions(chem)
-            val todo = need - left - rr.w
-            //            go(rr.input ::: List((chem, todo max 0)), mm.updated(chem, (all + rr.w, (todo min 0).abs)))
-
-            val m2 = go(rr.input, mm)
-            if (todo <= 0) {
-              m2.updated(chem, (all + rr.w, todo.abs))
-            } else {
-              go(List((chem, todo)), m2.updated(chem, (all + rr.w, 0)))
-            }
-          }
-        }
-        val (all, left) = m.get(chem).getOrElse((0, 0))
-        val todo = w - left - r.w
-        if (todo <= 0) {
-          go(t, m.updated(chem, (all + r.w, todo.abs)))
+      case (chem, need) :: t => {
+        val (all, left) = acc.get(chem).getOrElse((0, 0))
+        if (need <= left) {
+          go(t, acc.updated(chem, (all, left - need)))
         } else {
-          go((chem, todo) :: t, m.updated(chem, (all + r.w, 0)))
+          val r = reactions(chem)
+          val todo = need - left - r.w
+          go(r.input ::: List((chem, todo max 0)) ::: t, acc.updated(chem, (all + r.w, (todo min 0).abs)))
         }
-
       }
       case Nil => acc
     }
