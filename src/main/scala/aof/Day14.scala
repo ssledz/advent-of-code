@@ -39,11 +39,12 @@ object Day14 extends Day {
           }
           val (all, left) = m.get(chem).getOrElse((0, 0))
           val todo = w - left - r.w
-          if(todo <= 0) {
+          val mmm = if (todo <= 0) {
             m.updated(chem, (all + r.w, todo.abs))
           } else {
             go(List((chem, todo)), m.updated(chem, (all + r.w, 0)))
           }
+          go(t, mmm)
         }
       }
       case Nil => acc
