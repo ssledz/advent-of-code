@@ -46,6 +46,11 @@ object Day14 extends Day {
 
   def produceFuel(reactions: Map[String, Reaction], ore: Long = 1_000_000_000_000L): Long = {
 
+    val fuelReact = reactions(Fuel)
+
+    def doScale(s: Long, state: Map[String, (Long, Long)] = Map.empty) =
+      howManyOreToUse(reactions.updated(Fuel, fuelReact.copy(input = fuelReact.input.map { case (chem, need) => (chem, need * s) })), Fuel, state)
+
     def go(state: Map[String, (Long, Long)], fuel: Long, ore: Long): (Long, Map[String, (Long, Long)]) = {
 
       val (usedOre, newState) = howManyOreToUse(reactions, Fuel, state)
@@ -57,7 +62,18 @@ object Day14 extends Day {
       } else go(newState, fuel + 1, ore)
     }
 
-    go(Map.empty, 0, ore)._1
+    val scale = 10000
+
+    val (usedOre, state) = doScale(scale)
+
+    val m = ore / usedOre
+
+    println("usedOre: " + usedOre)
+    println("m: " + m)
+
+    val newState = state.view.mapValues { case (all, left) => (all * m, left * m) }.toMap
+
+    go(newState, m * scale, ore)._1
 
   }
 
