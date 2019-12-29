@@ -77,7 +77,7 @@ object Day14 extends Day {
 
   }
 
-  def solutionPartB: String = ""
+  def solutionPartB: String = "" + produceFuel(reactions)
 
   val Ore = "ORE"
 
