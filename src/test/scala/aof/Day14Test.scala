@@ -1,33 +1,48 @@
 package aof
 
-import aof.Day14.{Fuel, howManyOreToUse, toRections}
+import aof.Day14.{Fuel, howManyOreToUse, produceFuel, toRections}
 import org.scalatest.funsuite.AnyFunSuite
 
 class Day14Test extends AnyFunSuite {
 
   test("howManyOreToUse ex1") {
     val rs = toRections(Day14Test.Ex1)
-    assert(howManyOreToUse(rs, Fuel) == 31)
+    assert(howManyOreToUse(rs, Fuel)._1 == 31)
   }
 
   test("howManyOreToUse ex2") {
     val rs = toRections(Day14Test.Ex2)
-    assert(howManyOreToUse(rs, Fuel) == 165)
+    assert(howManyOreToUse(rs, Fuel)._1 == 165)
   }
 
   test("howManyOreToUse ex3") {
     val rs = toRections(Day14Test.Ex3)
-    assert(howManyOreToUse(rs, Fuel) == 13312)
+    assert(howManyOreToUse(rs, Fuel)._1 == 13312)
   }
 
   test("howManyOreToUse ex4") {
     val rs = toRections(Day14Test.Ex4)
-    assert(howManyOreToUse(rs, Fuel) == 180697)
+    assert(howManyOreToUse(rs, Fuel)._1 == 180697)
   }
 
   test("howManyOreToUse ex5") {
     val rs = toRections(Day14Test.Ex5)
-    assert(howManyOreToUse(rs, Fuel) == 2210736)
+    assert(howManyOreToUse(rs, Fuel)._1 == 2210736)
+  }
+
+  test("produceFuel ex5") {
+    val rs = toRections(Day14Test.Ex5)
+    assert(produceFuel(rs) == 460664)
+  }
+
+  test("produceFuel ex3") {
+    val rs = toRections(Day14Test.Ex3)
+    assert(produceFuel(rs) == 82892753)
+  }
+
+  test("produceFuel ex4") {
+    val rs = toRections(Day14Test.Ex4)
+    assert(produceFuel(rs) == 5586022)
   }
 
 }

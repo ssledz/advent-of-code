@@ -13,33 +13,52 @@ object Day14 extends Day {
 
   lazy val reactions: Map[String, Reaction] = toRections(lines)
 
-  def howManyOreToUse(reactions: Map[String, Reaction], r: String): Int = {
+  def howManyOreToUse(reactions: Map[String, Reaction], r: String,
+                      state: Map[String, (Long, Long)] = Map.empty): (Long, Map[String, (Long, Long)]) = {
 
-    def go(xs: List[(String, Int)], acc: Map[String, (Int, Int)]): Map[String, (Int, Int)] = xs match {
-      case (_, 0) :: t => go(t, acc)
+    def go(xs: List[(String, Long)], acc: Map[String, (Long, Long)]): Map[String, (Long, Long)] = xs match {
+      case (_, 0L) :: t => go(t, acc)
       case (Ore, w) :: t => {
-        val (all, _) = acc.get(Ore).getOrElse((0, 0))
-        go(t, acc.updated(Ore, (all + w, 0)))
+        val (all, _) = acc.get(Ore).getOrElse((0L, 0L))
+        go(t, acc.updated(Ore, (all + w, 0L)))
       }
       case (chem, need) :: t => {
-        val (all, left) = acc.get(chem).getOrElse((0, 0))
+        val (all, left) = acc.get(chem).getOrElse((0L, 0L))
         if (need <= left) {
           go(t, acc.updated(chem, (all, left - need)))
         } else {
           val r = reactions(chem)
           val todo = need - left - r.w
-          go(r.input ::: List((chem, todo max 0)) ::: t, acc.updated(chem, (all + r.w, (todo min 0).abs)))
+          go(r.input ::: List((chem, todo max 0L)) ::: t, acc.updated(chem, (all + r.w, (todo min 0L).abs)))
         }
       }
       case Nil => acc
     }
 
-    go(reactions(r).input, Map.empty)(Ore)._1
+    val s = go(reactions(r).input, state)
+    (s(Ore)._1, s)
   }
 
   def solutionPartA: String = {
 
-    "" + howManyOreToUse(reactions, Fuel)
+    "" + howManyOreToUse(reactions, Fuel)._1
+  }
+
+  def produceFuel(reactions: Map[String, Reaction], ore: Long = 1_000_000_000_000L): Long = {
+
+    def go(state: Map[String, (Long, Long)], fuel: Long, ore: Long): (Long, Map[String, (Long, Long)]) = {
+
+      val (usedOre, newState) = howManyOreToUse(reactions, Fuel, state)
+
+      println(s"${Math.round(usedOre * 100.0 / ore.toDouble)}% => " + fuel -> usedOre)
+
+      if (usedOre > ore) {
+        fuel -> state
+      } else go(newState, fuel + 1, ore)
+    }
+
+    go(Map.empty, 0, ore)._1
+
   }
 
   def solutionPartB: String = ""
@@ -48,11 +67,11 @@ object Day14 extends Day {
 
   val Fuel = "FUEL"
 
-  case class Reaction(w: Int, output: String, input: List[(String, Int)])
+  case class Reaction(w: Long, output: String, input: List[(String, Long)])
 
   object Reaction {
 
-    def toChem(s: String): (String, Int) = {
+    def toChem(s: String): (String, Long) = {
       s.trim.split(' ').toList match {
         case w :: chem :: Nil => (chem, w.toInt)
       }
@@ -70,9 +89,6 @@ object Day14 extends Day {
 }
 
 object Day14App extends App {
-  //Your answer is too low. You guessed 66360.
-  // 486641
   println("SolutionPartA: " + solutionPartA)
   println("SolutionPartB: " + solutionPartB)
-
 }
