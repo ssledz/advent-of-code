@@ -21,17 +21,15 @@ object Day16 extends Day {
   }
 
   def fft(in: List[Int]): List[Int] = {
-
-    //    in.zipWithIndex
-    ???
-
+    in.zipWithIndex.map { case (_, i) =>
+      val x = in.zip(repeat(i + 1).drop(1)).map { case (a, b) => a * b }.sum
+      x.toString.toList.last - '0'
+    }
   }
 
-  def solutionPartA: String = {
-    val xs = List()
-    println(repeat(2).drop(1).take(10).toList)
-    ""
-  }
+  def ffts(in: List[Int], n: Int): List[Int] = (1 to n).foldLeft(in) { (in, _) => fft(in) }
+
+  def solutionPartA: String = ffts(input, 100).take(8).map(_.toString).mkString
 
   def solutionPartB: String = ""
 

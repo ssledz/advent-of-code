@@ -20,4 +20,22 @@ class Day16Test extends AnyFunSuite {
     assert(zs == List(0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1))
   }
 
+  test("fft") {
+    assert(asString(Day16.fft(in("12345678"))) == "48226158")
+    assert(asString(Day16.fft(in("48226158"))) == "34040438")
+    assert(asString(Day16.fft(in("34040438"))) == "03415518")
+    assert(asString(Day16.fft(in("03415518"))) == "01029498")
+  }
+
+  test("ffts") {
+    assert(asString(Day16.ffts(in("12345678"), 4)) == "01029498")
+    assert(asString(Day16.ffts(in("80871224585914546619083218645595"), 100).take(8)) == "24176176")
+    assert(asString(Day16.ffts(in("19617804207202209144916044189917"), 100).take(8)) == "73745418")
+    assert(asString(Day16.ffts(in("69317163492948606335995924319873"), 100).take(8)) == "52432133")
+  }
+
+  def in(s: String) = s.toList.map(_ - '0')
+
+  def asString(xs: List[Int]) = xs.map(_.toString).mkString
+
 }
