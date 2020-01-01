@@ -125,6 +125,5 @@ object Day15 extends Day {
 
 object Day15App extends App {
   println("SolutionPartA: " + solutionPartA)
-  //your answer is too low. You guessed 239
   println("SolutionPartB: " + solutionPartB)
 }
