@@ -78,15 +78,47 @@ object Day15 extends Day {
 
   def solutionPartA: String = "" + explore._1.map(_.length).sorted.headOption
 
+  def spreadOxygen: (Int, Set[Vec]) = {
+
+    val (_, area) = explore
+
+    val Some((oxygenStationLoc, _)) = area.find { case (_, status) => status == Status.OxygenStation }
+
+    val moves = id2move.values.toList
+
+    def neighbours(v: Vec): List[Vec] = moves.map(_ + v)
+
+    def canSpread(p: Vec): Boolean = area.get(p).exists(_ != Status.HitWall)
+
+    def go(sources: List[Vec], covered: Set[Vec] = Set.empty, it: Int = 0): (Int, Set[Vec]) = {
+
+      val newSources = sources.flatMap(neighbours)
+        .filterNot(covered.contains)
+        .filter(canSpread)
+
+      if (newSources.isEmpty) {
+        it -> covered
+      } else {
+        go(newSources, covered ++ newSources ++ sources, it + 1)
+      }
+
+    }
+
+
+    go(List(oxygenStationLoc))
+  }
+
   def solutionPartB: String = {
 
-    val (paths, area) = explore
+    val (_, area) = explore
 
-//    println(paths.sortBy(_.length).headOption)
+    val (minutes, covered) = spreadOxygen
 
-    println(writeArea(area + (Vec.Zero -> -1)))
+    val xs = covered.toList.map(_ -> Status.OxygenStation)
 
-    ""
+    println(writeArea(area ++ xs))
+
+    "" + minutes
   }
 
 }
