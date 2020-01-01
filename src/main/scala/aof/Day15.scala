@@ -29,13 +29,12 @@ object Day15 extends Day {
       case (h, pos) :: t if !(visited contains pos) =>
         val c = IntComputer(memory.toArray).extendMemory().runInterpreter(h)
         val status = c.output.head.toInt
-        if (status == Status.OxygenStation) {
-          (h :: acc, area + (pos -> status))
-        } else if (status == Status.HitWall) {
+        if (status == Status.HitWall) {
           go(t, visited + pos, acc, area + (pos -> status))
         } else {
           val newMoves = movesFrom(h, pos).filterNot { case (_, pos) => visited contains pos }
-          go(newMoves ::: moves, visited + pos, acc, area + (pos -> status))
+          val newAcc = if (status == Status.OxygenStation) h :: acc else acc
+          go(newMoves ::: moves, visited + pos, newAcc, area + (pos -> status))
         }
       case _ :: t => go(t, visited, acc, area)
       case Nil => acc -> area
@@ -114,9 +113,10 @@ object Day15 extends Day {
 
     val (minutes, covered) = spreadOxygen
 
-    val xs = covered.toList.map(_ -> Status.OxygenStation)
+    //    val xs = covered.toList.map(_ -> Status.OxygenStation)
 
-    println(writeArea(area ++ xs))
+    //    println(writeArea(area + (Vec.Zero -> -1)))
+    //    println(writeArea(area ++ xs))
 
     "" + minutes
   }
