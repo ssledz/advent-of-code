@@ -1,6 +1,6 @@
 package aof
 
-import aof.Day16.{solutionPartA, solutionPartB}
+import aof.Day16.solutionPartB
 
 object Day16 extends Day {
 
@@ -31,16 +31,34 @@ object Day16 extends Day {
 
   def solutionPartA: String = ffts(input, 100).take(8).map(_.toString).mkString
 
+  def decodeDigit(in: List[Int], offset: Int, repeatIn: Int = 10000): Int = {
+
+    val pattern = repeat(offset, basePattern).drop(offset + 1)
+
+    val start = offset % in.length
+
+    val partialSum = in.drop(start).sum
+
+    val startIndex = offset + (in.length - start)
+
+    val sum = in.sum
+    val diff = in.map(_ * -1).sum
+
+    val iter = startIndex / (repeatIn * 2)
+
+    val left = startIndex - iter * (repeatIn * 2)
+
+        println("iter: " + iter)
+        println("left: " + left)
+
+    val res = (sum + diff) * repeatIn * iter + 1 * repeatIn * sum + (left - repeatIn) * diff + partialSum
+
+    res % 10
+  }
+
   def decode(in: List[Int]): List[Int] = {
-
     val offset = in.take(7).zip(6 to(0, -1)).map { case (x, i) => x * Math.pow(10, i).toInt }.sum
-
-    val inRepeated = (1 to 10000).foldLeft(in.toVector) { case (acc, _) => acc ++ acc }
-
-    println(offset)
-
-    List.empty
-
+    (0 until 8).map(d => decodeDigit(in, offset + d)).toList
   }
 
   def solutionPartB: String = decode(input).map(_.toString).mkString
@@ -48,6 +66,6 @@ object Day16 extends Day {
 }
 
 object Day16App extends App {
-  println("SolutionPartA: " + solutionPartA)
+  //  println("SolutionPartA: " + solutionPartA)
   println("SolutionPartB: " + solutionPartB)
 }
