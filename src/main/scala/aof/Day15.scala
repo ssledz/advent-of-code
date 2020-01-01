@@ -18,35 +18,27 @@ object Day15 extends Day {
     val OxygenStation = 2
   }
 
-  object Tile {
-    val Wall = "#"
-    val Empty = "."
-    val Droid = "D"
-    val OxygenStation = "O"
-    val Start = "S"
-  }
-
-  def explore: List[Vector[Int]] = {
+  def explore: (List[Vector[Int]], Map[Vec, Int]) = {
 
     def movesFrom(moves: Vector[Int], pos: Vec): List[(Vector[Int], Vec)] =
       allMoves.map { m => (moves :+ m, id2move(m) + pos) }
 
-    def go(moves: List[(Vector[Int], Vec)], visited: Set[Vec] = Set(Vec.Zero),
-           acc: List[Vector[Int]] = List.empty): List[Vector[Int]] = moves match {
+    def go(moves: List[(Vector[Int], Vec)], visited: Set[Vec] = Set(Vec.Zero), acc: List[Vector[Int]] = List.empty,
+           area: Map[Vec, Int] = Map(Vec.Zero -> Status.Moved)): (List[Vector[Int]], Map[Vec, Int]) = moves match {
 
       case (h, pos) :: t if !(visited contains pos) =>
         val c = IntComputer(memory.toArray).extendMemory().runInterpreter(h)
-        val status = c.output.head
+        val status = c.output.head.toInt
         if (status == Status.OxygenStation) {
-          h :: acc
+          (h :: acc, area + (pos -> status))
         } else if (status == Status.HitWall) {
-          go(t, visited + pos, acc)
+          go(t, visited + pos, acc, area + (pos -> status))
         } else {
           val newMoves = movesFrom(h, pos).filterNot { case (_, pos) => visited contains pos }
-          go(newMoves ::: moves, visited + pos, acc)
+          go(newMoves ::: moves, visited + pos, acc, area + (pos -> status))
         }
-      case _ :: t => go(t, visited, acc)
-      case Nil => acc
+      case _ :: t => go(t, visited, acc, area)
+      case Nil => acc -> area
 
     }
 
@@ -55,15 +47,47 @@ object Day15 extends Day {
 
   case class Vec(x: Int, y: Int) {
     def +(other: Vec): Vec = Vec(x + other.x, y + other.y)
+
+    def min(other: Vec): Vec = Vec(x min other.x, y min other.y)
+
+    def max(other: Vec): Vec = Vec(x max other.x, y max other.y)
   }
 
   object Vec {
     val Zero = Vec(0, 0)
   }
 
-  def solutionPartA: String = "" + explore.map(_.length).sorted.headOption
+  def writeArea(area: Map[Vec, Int]): String = {
 
-  def solutionPartB: String = ""
+    def statusAsStr(s: Int): String = if (s == Status.Moved) "."
+    else if (s == Status.HitWall) "#" else if (s == -1) "S" else "O"
+
+    val (min, max) = area.toList
+      .foldLeft((Vec(Int.MaxValue, Int.MaxValue), Vec(Int.MinValue, Int.MinValue))) { case ((min, max), (pos, _)) =>
+        (min min pos, max max pos)
+      }
+
+    (min.y to max.y).toList.map { y =>
+      (min.x to max.x).toList.map { x =>
+        val status = area.get(Vec(x, y))
+        status.map(statusAsStr).getOrElse("#")
+      }.mkString
+    }.mkString("\n")
+  }
+
+
+  def solutionPartA: String = "" + explore._1.map(_.length).sorted.headOption
+
+  def solutionPartB: String = {
+
+    val (paths, area) = explore
+
+//    println(paths.sortBy(_.length).headOption)
+
+    println(writeArea(area + (Vec.Zero -> -1)))
+
+    ""
+  }
 
 }
 
