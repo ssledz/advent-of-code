@@ -1,6 +1,6 @@
 package aof
 
-import aof.Day16.solutionPartB
+import aof.Day16.{solutionPartA, solutionPartB}
 
 object Day16 extends Day {
 
@@ -48,6 +48,6 @@ object Day16 extends Day {
 }
 
 object Day16App extends App {
-  //  println("SolutionPartA: " + solutionPartA)
+  println("SolutionPartA: " + solutionPartA)
   println("SolutionPartB: " + solutionPartB)
 }
