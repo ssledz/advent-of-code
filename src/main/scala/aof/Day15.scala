@@ -90,22 +90,22 @@ object Day15 extends Day {
 
     def canSpread(p: Vec): Boolean = area.get(p).exists(_ != Status.HitWall)
 
-    def go(sources: List[Vec], covered: Set[Vec] = Set.empty, it: Int = 0): (Int, Set[Vec]) = {
+    def go(toFill: Set[Vec], filled: Set[Vec] = Set.empty, it: Int = 0): (Int, Set[Vec]) = {
 
-      val newSources = sources.flatMap(neighbours)
-        .filterNot(covered.contains)
+      val newToFill = toFill.flatMap(neighbours)
+        .filterNot(filled.contains)
         .filter(canSpread)
 
-      if (newSources.isEmpty) {
-        it -> covered
+      if (newToFill.isEmpty) {
+        it -> filled
       } else {
-        go(newSources, covered ++ newSources ++ sources, it + 1)
+        go(newToFill, filled ++ toFill, it + 1)
       }
 
     }
 
 
-    go(List(oxygenStationLoc))
+    go(Set(oxygenStationLoc))
   }
 
   def solutionPartB: String = {
@@ -125,5 +125,6 @@ object Day15 extends Day {
 
 object Day15App extends App {
   println("SolutionPartA: " + solutionPartA)
+  //your answer is too low. You guessed 239
   println("SolutionPartB: " + solutionPartB)
 }
