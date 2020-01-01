@@ -1,6 +1,6 @@
 package aof
 
-import aof.Day16.{solutionPartA, solutionPartB}
+import aof.Day16.solutionPartB
 
 object Day16 extends Day {
 
@@ -31,11 +31,23 @@ object Day16 extends Day {
 
   def solutionPartA: String = ffts(input, 100).take(8).map(_.toString).mkString
 
-  def solutionPartB: String = ""
+  def decode(in: List[Int]): List[Int] = {
+
+    val offset = in.take(7).zip(6 to(0, -1)).map { case (x, i) => x * Math.pow(10, i).toInt }.sum
+
+    val inRepeated = (1 to 10000).foldLeft(in.toVector) { case (acc, _) => acc ++ acc }
+
+    println(offset)
+
+    List.empty
+
+  }
+
+  def solutionPartB: String = decode(input).map(_.toString).mkString
 
 }
 
 object Day16App extends App {
-  println("SolutionPartA: " + solutionPartA)
+  //  println("SolutionPartA: " + solutionPartA)
   println("SolutionPartB: " + solutionPartB)
 }

@@ -34,6 +34,12 @@ class Day16Test extends AnyFunSuite {
     assert(asString(Day16.ffts(in("69317163492948606335995924319873"), 100).take(8)) == "52432133")
   }
 
+  test("decode") {
+    assert(asString(Day16.decode(in("03036732577212944063491565474664"))) == "84462026")
+    assert(asString(Day16.decode(in("02935109699940807407585447034323"))) == "78725270")
+    assert(asString(Day16.decode(in("03081770884921959731165446850517"))) == "53553731")
+  }
+
   def in(s: String) = s.toList.map(_ - '0')
 
   def asString(xs: List[Int]) = xs.map(_.toString).mkString
