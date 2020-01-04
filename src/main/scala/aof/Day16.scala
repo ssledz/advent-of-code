@@ -1,6 +1,6 @@
 package aof
 
-import aof.Day16.solutionPartB
+import aof.Day16.{solutionPartA, solutionPartB}
 
 object Day16 extends Day {
 
@@ -20,12 +20,11 @@ object Day16 extends Day {
     go(pattern)
   }
 
-  def fft(in: List[Int]): List[Int] = {
-    in.zipWithIndex.map { case (_, i) =>
-      val x = in.zip(repeat(i + 1).drop(1)).map { case (a, b) => a * b }.sum
-      x.toString.toList.last - '0'
-    }
-  }
+  def fft(in: List[Int], i: Int): Int =
+    in.zip(repeat(i + 1).drop(1)).map { case (a, b) => a * b }
+      .sum.toString.toList.last - '0'
+
+  def fft(in: List[Int]): List[Int] = in.zipWithIndex.map { case (_, i) => fft(in, i) }
 
   def ffts(in: List[Int], n: Int): List[Int] = (1 to n).foldLeft(in) { (in, _) => fft(in) }
 
@@ -48,8 +47,8 @@ object Day16 extends Day {
 
     val left = startIndex - iter * (repeatIn * 2)
 
-        println("iter: " + iter)
-        println("left: " + left)
+//    println("iter: " + iter)
+//    println("left: " + left)
 
     val res = (sum + diff) * repeatIn * iter + 1 * repeatIn * sum + (left - repeatIn) * diff + partialSum
 
@@ -66,6 +65,6 @@ object Day16 extends Day {
 }
 
 object Day16App extends App {
-  //  println("SolutionPartA: " + solutionPartA)
+  println("SolutionPartA: " + solutionPartA)
   println("SolutionPartB: " + solutionPartB)
 }
