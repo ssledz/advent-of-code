@@ -11,7 +11,7 @@ object Day17 extends Day {
   val NL = 10
   val Scaffold = 35 // #
   val Intersection = 'O'.toInt
-  val RobotFaces = Map(('^'.toInt, Vec(0, -1)), ('v'.toInt, Vec(0, 1)), ('<'.toInt, Vec(-1, 0)), ('>'.toInt, Vec(0, 1)))
+  val RobotFaces = Map(('^'.toInt, Vec(0, -1)), ('v'.toInt, Vec(0, 1)), ('<'.toInt, Vec(-1, 0)), ('>'.toInt, Vec(1, 0)))
 
   def buildMap(xs: List[Long]): Map[Vec, Int] = xs.map(_.toInt)
     .foldLeft((Vec.Zero, Map.empty[Vec, Int])) { case ((vec@Vec(x, y), as), a) =>
@@ -81,25 +81,70 @@ object Day17 extends Day {
 
   def path(area: Map[Vec, Int]): List[Vector[MovF]] = {
 
-    def movesFrom(p: Vec, face: Int): List[(Int, Vector[MovF], Vec)] = List.empty
+    val ints = scaffoldInter(area)
+
+    val faces = RobotFaces.keys.toSet
+
+    //    val rotations = Vector('^','>', 'v', '<')
+
+    def rotate(sf: Int, ef: Int): Option[MovF] = (sf.toChar, ef.toChar) match {
+      case ('^', '>') => Some(Turn("R"))
+      case ('^', '<') => Some(Turn("L"))
+      case ('v', '>') => Some(Turn("L"))
+      case ('v', '<') => Some(Turn("R"))
+      case ('<', '^') => Some(Turn("R"))
+      case ('<', 'v') => Some(Turn("L"))
+      case ('>', '^') => Some(Turn("L"))
+      case ('>', 'v') => Some(Turn("R"))
+      case _ => None
+    }
+
+    def isScaffold(pos: Vec): Boolean = area.get(pos).exists(_ == Scaffold)
+
+    def movesFrom(p: Vec, face: Int): List[(Int, Vector[MovF], Vec)] = {
+
+      val otherFaces = faces - face
+
+      val maybeForward = {
+        val newP = p + RobotFaces(face)
+        if (isScaffold(newP)) List((face, Vector(Forward(1)), newP)) else List.empty
+      }
+
+      maybeForward ::: otherFaces.toList.flatMap(nFace => rotate(face, nFace).map(nFace -> _))
+        .map { case (nFace, turn) => (nFace, Vector(turn, Forward(1)), p + RobotFaces(nFace)) }
+        .filter { case (_, _, pos) => isScaffold(pos) }
+    }
 
     def go(xs: List[(Int, Vector[MovF], Vec, Set[Vec])], acc: List[Vector[MovF]] = List.empty): List[Vector[MovF]] = xs match {
       case (_, ms, _, notVisited) :: t if notVisited.isEmpty => go(t, ms :: acc)
       case (face, ms, pos, notVisited) :: t => {
         val ys = movesFrom(pos, face)
-          .filter { case (_, _, pos) => notVisited contains pos }
+          .filter { case (_, _, newPos) => (ints contains newPos) || (notVisited contains newPos) }
           .map { case (newFace, nextMs, newPos) =>
-            (newFace, ms ++ nextMs, newPos, notVisited - pos)
+            if(notVisited.size <= 2 ) {
+              println("(newFace, pos, newPos, notVisited - pos): " + (newFace, pos, newPos, notVisited - newPos))
+              println("min notVisited.size: " + notVisited.size + " => " + notVisited)
+            }
+            (newFace, ms ++ nextMs, newPos, notVisited - newPos)
           }
         go(ys ::: t, acc)
       }
       case Nil => acc
     }
 
-    val faces = RobotFaces.keys.toSet
     val start: Vec = area.find { case (_, tile) => faces contains tile }.get._1
     println("start: " + start)
-    go(List((area(start), Vector.empty, start, area.keys.toSet)))
+    println("face: " + area(start))
+    println("movesFrom: " + movesFrom(start, area(start)))
+    println("movesFrom: " + movesFrom(Vec(3, 0), '<'.toInt))
+    println("movesFrom: " + movesFrom(Vec(2, 0), '<'.toInt))
+    println("movesFrom: " + movesFrom(Vec(1, 0), '<'.toInt))
+    println("movesFrom(0, 0): " + movesFrom(Vec(0, 0), '<'.toInt))
+    println("movesFrom(0, 1): " + movesFrom(Vec(0, 1), 'v'.toInt))
+    println("movesFrom(22, 4): " + movesFrom(Vec(22, 4), '>'.toInt))
+    println("movesFrom(23, 4): " + movesFrom(Vec(23, 4), '>'.toInt))
+    println("movesFrom(24, 4): " + movesFrom(Vec(24, 4), '>'.toInt))
+    go(List((area(start), Vector.empty, start, area.filter { case (_, tile) => tile == Scaffold }.keys.toSet - start)))
   }
 
   def solutionPartB: String = {
