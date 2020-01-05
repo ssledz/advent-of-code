@@ -10,7 +10,9 @@ object Day16 extends Day {
 
   val basePattern = List(0, 1, 0, -1)
 
-  def repeat(n: Int, pattern: List[Int] = basePattern): LazyList[Int] = {
+  def repeat(n: Int, pattern: List[Int] = basePattern): RepeatedIntList = new RepeatedIntList(pattern, n)
+
+  def repeat2(n: Int, pattern: List[Int] = basePattern): LazyList[Int] = {
 
     def go(xs: List[Int]): LazyList[Int] = xs match {
       case Nil => go(pattern)
@@ -47,8 +49,8 @@ object Day16 extends Day {
 
     val left = startIndex - iter * (repeatIn * 2)
 
-//    println("iter: " + iter)
-//    println("left: " + left)
+    //    println("iter: " + iter)
+    //    println("left: " + left)
 
     val res = (sum + diff) * repeatIn * iter + 1 * repeatIn * sum + (left - repeatIn) * diff + partialSum
 
@@ -61,6 +63,63 @@ object Day16 extends Day {
   }
 
   def solutionPartB: String = decode(input).map(_.toString).mkString
+
+  class RepeatedIntList(xs: List[Int], n: Int) extends Iterator[Int] {
+
+    private var state = xs
+
+    private var it = n
+
+    def hasNext: Boolean = true
+
+    override def drop(nn: Int): RepeatedIntList = {
+      super.drop(nn % (n * xs.length))
+      this
+    }
+
+    def takeN(nn: Int): List[((Int, Int), Int)] = {
+
+      def go(ys: List[Int], it: Int = 0, acc: List[((Int, Int), Int)] = List.empty): List[((Int, Int), Int)] = {
+        if (it == nn) {
+          acc
+        } else {
+          val nextIt = nn min (it + n)
+          ys match {
+            case h :: t => go(t, nextIt, ((it, nextIt), h) :: acc)
+            case Nil => go(xs.tail, nextIt, ((it, nextIt), xs.head) :: acc)
+          }
+        }
+      }
+
+
+      if (it == n) {
+        go(state).reverse
+      } else {
+        val value = state.head
+        if (nn <= it) {
+          List(((0, nn), value))
+        } else {
+          if (it == 0) {
+            go(nextState, it).reverse
+          } else ((0, it), value) :: go(nextState, it).reverse
+        }
+
+
+      }
+
+    }
+
+    private def nextState = if (state.tail == Nil) xs else state.tail
+
+    def next(): Int = if (it > 0) {
+      it = it - 1
+      state.head
+    } else {
+      it = n
+      state = nextState
+      next
+    }
+  }
 
 }
 
