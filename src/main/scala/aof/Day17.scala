@@ -162,13 +162,40 @@ object Day17 extends Day {
     }
   }
 
-  def asciiEncode(xs: Seq[String]): Seq[Int] = xs.flatMap { x =>
+  def asciiEncode(xs: Seq[String], nl: Seq[Int] = Seq(NL)): Seq[Int] = xs.flatMap { x =>
     Coma :: x.toList.map(_.toInt)
-  }.tail :+ NL
+  }.tail ++ nl
+
+  def encodeFunctions(xs: Seq[Int]): List[(Seq[Int], Seq[Int], Seq[Int])] = ???
+
+  def encodeRoutines(a: Seq[Int], b: Seq[Int], c: Seq[Int], xs: Seq[Int]): Seq[Int] = ???
+
+  def encodePath(xs: Seq[String]): List[(Seq[Int], (Seq[Int], Seq[Int], Seq[Int]))] = {
+    val ys = asciiEncode(xs, Seq.empty)
+    for {
+      (aF, bF, cF) <- encodeFunctions(ys)
+    } yield (encodeRoutines(aF, bF, cF, ys), (aF, bF, cF))
+  }
 
   def solutionPartB: String = {
     val xs: Set[Vector[String]] = path(area).map(_.map(_.encode))
-    "\n" + xs.head.mkString(",")
+
+    println("path.head: " + xs.head.mkString(","))
+
+    val ys = xs.flatMap(encodePath).filter { case (routines, (aF, bF, cF)) =>
+      List(routines, aF, bF, cF).forall(_.size <= MaxFunctionSize)
+    }
+
+    val (routines, (aF, bF, cF)) = ys.head
+
+    val input: Seq[Int] = (routines :+ NL) ++ (aF :+ NL) ++ (bF :+ NL) ++ (cF :+ NL) ++ Seq('n'.toInt, NL)
+
+    val c = IntComputer(memory.toArray).extendMemory(3 * 1024)
+      .runInterpreter(input)
+
+    println("output: " + c.output)
+
+    "\n" + c.output.head
   }
 
   case class Vec(x: Int, y: Int) {
