@@ -79,7 +79,7 @@ object Day17 extends Day {
 
   case class Turn(x: String) extends MovF
 
-  def path(area: Map[Vec, Int]): List[Vector[MovF]] = {
+  def path(area: Map[Vec, Int]): Set[Vector[MovF]] = {
 
     val ints = scaffoldInter(area)
 
@@ -121,10 +121,10 @@ object Day17 extends Day {
         val ys = movesFrom(pos, face)
           .filter { case (_, _, newPos) => (ints contains newPos) || (notVisited contains newPos) }
           .map { case (newFace, nextMs, newPos) =>
-            if(notVisited.size <= 2 ) {
-              println("(newFace, pos, newPos, notVisited - pos): " + (newFace, pos, newPos, notVisited - newPos))
-              println("min notVisited.size: " + notVisited.size + " => " + notVisited)
-            }
+            //            if(notVisited.size <= 2 ) {
+            //              println("(newFace, pos, newPos, notVisited - pos): " + (newFace, pos, newPos, notVisited - newPos))
+            //              println("min notVisited.size: " + notVisited.size + " => " + notVisited)
+            //            }
             (newFace, ms ++ nextMs, newPos, notVisited - newPos)
           }
         go(ys ::: t, acc)
@@ -133,22 +133,30 @@ object Day17 extends Day {
     }
 
     val start: Vec = area.find { case (_, tile) => faces contains tile }.get._1
-    println("start: " + start)
-    println("face: " + area(start))
-    println("movesFrom: " + movesFrom(start, area(start)))
-    println("movesFrom: " + movesFrom(Vec(3, 0), '<'.toInt))
-    println("movesFrom: " + movesFrom(Vec(2, 0), '<'.toInt))
-    println("movesFrom: " + movesFrom(Vec(1, 0), '<'.toInt))
-    println("movesFrom(0, 0): " + movesFrom(Vec(0, 0), '<'.toInt))
-    println("movesFrom(0, 1): " + movesFrom(Vec(0, 1), 'v'.toInt))
-    println("movesFrom(22, 4): " + movesFrom(Vec(22, 4), '>'.toInt))
-    println("movesFrom(23, 4): " + movesFrom(Vec(23, 4), '>'.toInt))
-    println("movesFrom(24, 4): " + movesFrom(Vec(24, 4), '>'.toInt))
-    go(List((area(start), Vector.empty, start, area.filter { case (_, tile) => tile == Scaffold }.keys.toSet - start)))
+    //    println("start: " + start)
+    //    println("face: " + area(start))
+    //    println("movesFrom: " + movesFrom(start, area(start)))
+    //    println("movesFrom: " + movesFrom(Vec(3, 0), '<'.toInt))
+    //    println("movesFrom: " + movesFrom(Vec(2, 0), '<'.toInt))
+    //    println("movesFrom: " + movesFrom(Vec(1, 0), '<'.toInt))
+    //    println("movesFrom(0, 0): " + movesFrom(Vec(0, 0), '<'.toInt))
+    //    println("movesFrom(0, 1): " + movesFrom(Vec(0, 1), 'v'.toInt))
+    //    println("movesFrom(22, 4): " + movesFrom(Vec(22, 4), '>'.toInt))
+    //    println("movesFrom(23, 4): " + movesFrom(Vec(23, 4), '>'.toInt))
+    //    println("movesFrom(24, 4): " + movesFrom(Vec(24, 4), '>'.toInt))
+    val res = go(List((area(start), Vector.empty, start, area.filter { case (_, tile) => tile == Scaffold }.keys.toSet - start)))
+    res.toSet.map { moves : Vector[MovF] =>
+      moves.foldLeft(Vector.empty[MovF]) { case (acc, move) =>
+        (acc.lastOption, move) match {
+          case (Some(Forward(value)), Forward(inc)) => acc.init :+ Forward(value + inc)
+          case _ => acc :+ move
+        }
+      }
+    }
   }
 
   def solutionPartB: String = {
-    "" + path(area)
+    "" + path(area).map(_.toString).mkString("\n")
   }
 
   case class Vec(x: Int, y: Int) {
