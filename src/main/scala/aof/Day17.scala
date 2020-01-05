@@ -8,7 +8,9 @@ object Day17 extends Day {
 
   val memory: List[Long] = lines.head.split(',').map(_.toLong).toList
 
+  val MaxFunctionSize = 20
   val NL = 10
+  val Coma = ','.toInt
   val Scaffold = 35 // #
   val Intersection = 'O'.toInt
   val RobotFaces = Map(('^'.toInt, Vec(0, -1)), ('v'.toInt, Vec(0, 1)), ('<'.toInt, Vec(-1, 0)), ('>'.toInt, Vec(1, 0)))
@@ -73,11 +75,16 @@ object Day17 extends Day {
     "" + ints.map { case Vec(x, y) => x * y }.sum
   }
 
-  trait MovF
+  sealed trait MovF {
+    def encode: String = this match {
+      case Forward(x) => x.toString
+      case Turn(x) => x.toString
+    }
+  }
 
   case class Forward(x: Int) extends MovF
 
-  case class Turn(x: String) extends MovF
+  case class Turn(x: Char) extends MovF
 
   def path(area: Map[Vec, Int]): Set[Vector[MovF]] = {
 
@@ -88,14 +95,14 @@ object Day17 extends Day {
     //    val rotations = Vector('^','>', 'v', '<')
 
     def rotate(sf: Int, ef: Int): Option[MovF] = (sf.toChar, ef.toChar) match {
-      case ('^', '>') => Some(Turn("R"))
-      case ('^', '<') => Some(Turn("L"))
-      case ('v', '>') => Some(Turn("L"))
-      case ('v', '<') => Some(Turn("R"))
-      case ('<', '^') => Some(Turn("R"))
-      case ('<', 'v') => Some(Turn("L"))
-      case ('>', '^') => Some(Turn("L"))
-      case ('>', 'v') => Some(Turn("R"))
+      case ('^', '>') => Some(Turn('R'))
+      case ('^', '<') => Some(Turn('L'))
+      case ('v', '>') => Some(Turn('L'))
+      case ('v', '<') => Some(Turn('R'))
+      case ('<', '^') => Some(Turn('R'))
+      case ('<', 'v') => Some(Turn('L'))
+      case ('>', '^') => Some(Turn('L'))
+      case ('>', 'v') => Some(Turn('R'))
       case _ => None
     }
 
@@ -145,7 +152,7 @@ object Day17 extends Day {
     //    println("movesFrom(23, 4): " + movesFrom(Vec(23, 4), '>'.toInt))
     //    println("movesFrom(24, 4): " + movesFrom(Vec(24, 4), '>'.toInt))
     val res = go(List((area(start), Vector.empty, start, area.filter { case (_, tile) => tile == Scaffold }.keys.toSet - start)))
-    res.toSet.map { moves : Vector[MovF] =>
+    res.toSet.map { moves: Vector[MovF] =>
       moves.foldLeft(Vector.empty[MovF]) { case (acc, move) =>
         (acc.lastOption, move) match {
           case (Some(Forward(value)), Forward(inc)) => acc.init :+ Forward(value + inc)
@@ -155,8 +162,13 @@ object Day17 extends Day {
     }
   }
 
+  def asciiEncode(xs: Seq[String]): Seq[Int] = xs.flatMap { x =>
+    x.toList.flatMap(y => Seq(Coma, y.toInt))
+  }.tail :+ NL
+
   def solutionPartB: String = {
-    "" + path(area).map(_.toString).mkString("\n")
+    val xs: Set[Vector[String]] = path(area).map(_.map(_.encode))
+    "\n" + xs.head.mkString(",")
   }
 
   case class Vec(x: Int, y: Int) {
@@ -180,4 +192,7 @@ object Day17 extends Day {
 object Day17App extends App {
   println("SolutionPartA: " + solutionPartA)
   println("SolutionPartB: " + solutionPartB)
+//  println(Math.log10(1))
+//  println(Math.log10(4).toInt + 1)
+//  println(Math.log10(10).toInt + 1)
 }
