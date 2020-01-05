@@ -163,7 +163,7 @@ object Day17 extends Day {
   }
 
   def asciiEncode(xs: Seq[String]): Seq[Int] = xs.flatMap { x =>
-    x.toList.flatMap(y => Seq(Coma, y.toInt))
+    Coma :: x.toList.map(_.toInt)
   }.tail :+ NL
 
   def solutionPartB: String = {
@@ -192,7 +192,7 @@ object Day17 extends Day {
 object Day17App extends App {
   println("SolutionPartA: " + solutionPartA)
   println("SolutionPartB: " + solutionPartB)
-//  println(Math.log10(1))
-//  println(Math.log10(4).toInt + 1)
-//  println(Math.log10(10).toInt + 1)
+  //  println(Math.log10(1))
+  //  println(Math.log10(4).toInt + 1)
+  //  println(Math.log10(10).toInt + 1)
 }
