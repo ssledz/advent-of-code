@@ -11,6 +11,7 @@ object Day17 extends Day {
   val NL = 10
   val Scaffold = 35 // #
   val Intersection = 'O'.toInt
+  val RobotFaces = Map(('^'.toInt, Vec(0, -1)), ('v'.toInt, Vec(0, 1)), ('<'.toInt, Vec(-1, 0)), ('>'.toInt, Vec(0, 1)))
 
   def buildMap(xs: List[Long]): Map[Vec, Int] = xs.map(_.toInt)
     .foldLeft((Vec.Zero, Map.empty[Vec, Int])) { case ((vec@Vec(x, y), as), a) =>
@@ -52,12 +53,13 @@ object Day17 extends Day {
 
   }
 
-  def solutionPartA: String = {
-
+  val area = {
     val output = IntComputer(memory.toArray).extendMemory(3 * 1024)
       .runInterpreter(List.empty).output
+    buildMap(output.reverse)
+  }
 
-    val area = buildMap(output.reverse)
+  def solutionPartA: String = {
 
     val renderer: Option[Int] => String = {
       case Some(value) => value.toChar.toString
@@ -71,7 +73,38 @@ object Day17 extends Day {
     "" + ints.map { case Vec(x, y) => x * y }.sum
   }
 
-  def solutionPartB: String = ""
+  trait MovF
+
+  case class Forward(x: Int) extends MovF
+
+  case class Turn(x: String) extends MovF
+
+  def path(area: Map[Vec, Int]): List[Vector[MovF]] = {
+
+    def movesFrom(p: Vec, face: Int): List[(Int, Vector[MovF], Vec)] = List.empty
+
+    def go(xs: List[(Int, Vector[MovF], Vec, Set[Vec])], acc: List[Vector[MovF]] = List.empty): List[Vector[MovF]] = xs match {
+      case (_, ms, _, notVisited) :: t if notVisited.isEmpty => go(t, ms :: acc)
+      case (face, ms, pos, notVisited) :: t => {
+        val ys = movesFrom(pos, face)
+          .filter { case (_, _, pos) => notVisited contains pos }
+          .map { case (newFace, nextMs, newPos) =>
+            (newFace, ms ++ nextMs, newPos, notVisited - pos)
+          }
+        go(ys ::: t, acc)
+      }
+      case Nil => acc
+    }
+
+    val faces = RobotFaces.keys.toSet
+    val start: Vec = area.find { case (_, tile) => faces contains tile }.get._1
+    println("start: " + start)
+    go(List((area(start), Vector.empty, start, area.keys.toSet)))
+  }
+
+  def solutionPartB: String = {
+    "" + path(area)
+  }
 
   case class Vec(x: Int, y: Int) {
     def +(other: Vec): Vec = Vec(x + other.x, y + other.y)
