@@ -166,7 +166,7 @@ object Day17 extends Day {
     Coma :: x.toList.map(_.toInt)
   }.tail
 
-  def encodeFunction(xs: List[String], routine: String, routines: Set[String] = Set("A", "B", "C"),
+  def encodeFunction(xs: Seq[String], routine: String, routines: Set[String] = Set("A", "B", "C"),
                      maxSize: Int = MaxFunctionSize): Set[(Seq[String], String)] = {
     def go(ys: String, xFun: String, acc: Set[String]): Set[String] = {
       if (ys.isEmpty) {
@@ -217,7 +217,7 @@ object Day17 extends Day {
     }
   }
 
-  def encodeRoutines(xs: List[String], maxSize: Int = MaxFunctionSize,
+  def encodeRoutines(xs: Seq[String], maxSize: Int = MaxFunctionSize,
                      routines: Set[String] = Set("A", "B", "C")): Set[(String, (Seq[String], Seq[String], Seq[String]))] = {
     val res = for {
       (aFun, ys) <- encodeFunction(xs, "A")
@@ -230,29 +230,14 @@ object Day17 extends Day {
     }
   }
 
-  def encodeFunctions(xs: Seq[String]): List[(Seq[String], Seq[String], Seq[String])] = {
-    List.empty
-  }
-
-  def encodeRoutines(a: Seq[String], b: Seq[String], c: Seq[String], xs: Seq[String]): Seq[String] = ???
-
-  def encodePath(xs: Seq[String]): List[(Seq[String], (Seq[String], Seq[String], Seq[String]))] = {
-    for {
-      (aF, bF, cF) <- encodeFunctions(xs)
-    } yield (encodeRoutines(aF, bF, cF, xs), (aF, bF, cF))
-  }
-
   def solutionPartB: String = {
     val xs: Set[Vector[String]] = path(area).map(_.map(_.encode))
 
     println("path.head: " + xs.head.mkString(","))
 
-    val ys = xs.flatMap(encodePath)
+    val ys = xs.flatMap(x => encodeRoutines(x))
       .map { case (routines, (aF, bF, cF)) =>
-        (asciiEncode(routines), (asciiEncode(aF), asciiEncode(bF), asciiEncode(cF)))
-      }
-      .filter { case (routines, (aF, bF, cF)) =>
-        List(routines, aF, bF, cF).forall(_.size <= MaxFunctionSize)
+        (asciiEncode(routines.split(',')), (asciiEncode(aF), asciiEncode(bF), asciiEncode(cF)))
       }
 
     val (routines, (aF, bF, cF)) = ys.head
@@ -265,6 +250,7 @@ object Day17 extends Day {
     println("output: " + c.output)
 
     "\n" + c.output.head
+
   }
 
   case class Vec(x: Int, y: Int) {
