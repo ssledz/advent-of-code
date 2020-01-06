@@ -18,12 +18,6 @@ class Day17Test extends AnyFunSuite {
       case (routine, (a, b, c)) => (routine, (a.mkString(","), b.mkString(","), c.mkString(",")))
     }
 
-    val zs = xs.map { case (routine, (aFun, bFun, cFun)) =>
-      routine + " =>\n  A=[" + aFun + "]" + "\n  B=[" + bFun + "]" + "\n  C=[" + cFun + "]"
-    }.mkString("\n\n")
-
-    println(zs)
-
     assert(xs contains("A,B,C,B,A,C", ("R,8,R,8", "R,4,R,4,R,8", "L,6,L,2")))
   }
 
@@ -31,9 +25,25 @@ class Day17Test extends AnyFunSuite {
 
     val xs: Set[(Seq[String], String)] = Day17.encodeFunction("A,R,4,R,4,R,8,L,6,L,2,R,4,R,4,R,8,A,L,6,L,2".split(',').toList, "B")
 
-    val ys = xs.map(x => x._1.mkString(",") + " => " + x._2).mkString("\n")
-    println(ys)
+    val ys = xs.map(x => (x._1.mkString(","), x._2))
 
+    assert(ys contains("R,4,R,4,R,8", "A,B,L,6,L,2,B,A,L,6,L,2"))
+    assert(ys contains("R,4,R,4,R", "A,B,8,L,6,L,2,B,8,A,L,6,L,2"))
+    assert(ys contains("R,4,R,4", "A,B,R,8,L,6,L,2,B,R,8,A,L,6,L,2"))
+    assert(ys contains("R,4,R", "A,B,4,R,8,L,6,L,2,R,4,B,8,A,L,6,L,2"))
+    assert(ys contains("R,4", "A,B,B,R,8,L,6,L,2,B,B,R,8,A,L,6,L,2"))
+    assert(ys contains("R", "A,B,4,B,4,B,8,L,6,L,2,B,4,B,4,B,8,A,L,6,L,2"))
+
+  }
+
+  test("replace") {
+    val xs = Day17.replace("R,8,R,8,R,4,R,4,R,8,L,6,L,2,R,4,R,4,R,8,R,8,R,8,L,6,L,2", "R,8,R,8", "A")
+    assert(xs contains "A,R,4,R,4,R,8,L,6,L,2,R,4,R,4,A,R,8,L,6,L,2")
+    assert(xs contains "A,R,4,R,4,R,8,L,6,L,2,R,4,R,4,R,8,A,L,6,L,2")
+    val ys = Day17.replace("R,8,R,8,R,4,R,4,R,8,L,6,L,2,R,4,R,4,R,8,R,8,R,8,L,6,L,2", "R,8,R,8,R", "A")
+    assert(ys contains "A,4,R,4,R,8,L,6,L,2,R,4,R,4,A,8,L,6,L,2")
+    val zs = Day17.replace("R,8,R,8,R,4,R,4,R,8,L,6,L,2,R,4,R,4,R,8,R,8,R,8,L,6,L,2", "R,8,R,8,R,8", "A")
+    assert(zs contains "R,8,R,8,R,4,R,4,R,8,L,6,L,2,R,4,R,4,A,L,6,L,2")
   }
 
 

@@ -183,6 +183,7 @@ object Day17 extends Day {
     }
 
     go(xs.dropWhile(routines.contains).mkString(","), "", Set.empty)
+      .filterNot(_.isEmpty)
       .filter(_.length <= maxSize)
       .flatMap { x =>
         val ys = x.split(',').toSeq
@@ -190,8 +191,31 @@ object Day17 extends Day {
       }
   }
 
-  def replace(source: String, target: String, replacement: String): List[String] =
-    List(source.replace(target, replacement))
+  def replace(source: String, target: String, replacement: String): Set[String] = {
+
+    def indexOf(src: String, target: String, from: Int = 0): List[Int] = {
+      val idx = src.indexOf(target)
+      if (idx == -1) {
+        List.empty
+      } else {
+        val x = if (src.indexOf(target, idx + 1) == src.indexOf(target, idx + target.length)) target.length else 1
+        (idx + from) :: indexOf(src.substring(idx + x), target, from + idx + x)
+      }
+    }
+
+    val xs = indexOf(source, target)
+
+    val ys = xs.zip(xs.drop(1)).filter { case (a, b) => b - a < target.length }
+
+    if (ys.isEmpty) {
+      Set(source.replace(target, replacement))
+    } else {
+      val zs = ys.flatMap { case (a, b) =>
+        List(a, b).map(x => List(source.substring(0, x), source.substring(x)).map(_.replace(target, replacement)).mkString)
+      }
+      zs.toSet
+    }
+  }
 
   def encodeRoutines(xs: List[String], maxSize: Int = MaxFunctionSize,
                      routines: Set[String] = Set("A", "B", "C")): Set[(String, (Seq[String], Seq[String], Seq[String]))] = {
