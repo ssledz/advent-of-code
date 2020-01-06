@@ -166,20 +166,44 @@ object Day17 extends Day {
     Coma :: x.toList.map(_.toInt)
   }.tail
 
-  def encodeFunction(xs: List[String], routine: String, routines: Set[String] = Set("A", "B", "C"), maxSize: Int = MaxFunctionSize): Set[Seq[String]] = {
+  def encodeFunction(xs: List[String], routine: String, routines: Set[String] = Set("A", "B", "C"),
+                     maxSize: Int = MaxFunctionSize): Set[(Seq[String], String)] = {
     def go(ys: String, xFun: String, acc: Set[String]): Set[String] = {
       if (ys.isEmpty) {
         acc + xFun
       } else {
         val c = ys.substring(0, 1)
-        val nXFun = xFun + c
-        go(ys.substring(1, ys.length), nXFun, if (ys.contains(nXFun)) acc + nXFun else acc)
+        if (routines contains c) {
+          acc + xFun
+        } else {
+          val nXFun = xFun + c
+          go(ys.substring(1, ys.length), nXFun, if (ys.contains(nXFun) && c != ",") acc + nXFun else acc)
+        }
       }
     }
 
     go(xs.dropWhile(routines.contains).mkString(","), "", Set.empty)
       .filter(_.length <= maxSize)
-      .map(_.split(','))
+      .flatMap { x =>
+        val ys = x.split(',').toSeq
+        replace(xs.mkString(","), x, routine).map(ys -> _)
+      }
+  }
+
+  def replace(source: String, target: String, replacement: String): List[String] =
+    List(source.replace(target, replacement))
+
+  def encodeRoutines(xs: List[String], maxSize: Int = MaxFunctionSize,
+                     routines: Set[String] = Set("A", "B", "C")): Set[(String, (Seq[String], Seq[String], Seq[String]))] = {
+    val res = for {
+      (aFun, ys) <- encodeFunction(xs, "A")
+      (bFun, zs) <- encodeFunction(ys.split(',').toList, "B")
+      (cFun, ws) <- encodeFunction(zs.split(',').toList, "C")
+    } yield (ws, (aFun, bFun, cFun))
+    res.filter {
+      case (routine, _) =>
+        routine.length <= maxSize && routine.split(',').toSet.removedAll(routines).isEmpty
+    }
   }
 
   def encodeFunctions(xs: Seq[String]): List[(Seq[String], Seq[String], Seq[String])] = {
