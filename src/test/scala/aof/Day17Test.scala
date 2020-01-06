@@ -13,24 +13,31 @@ class Day17Test extends AnyFunSuite {
     assert(Day17.asciiEncode(Seq("L", "84")) == Seq(76, 44, 56, 52))
   }
 
-  test("encodeFunctions") {
-    val ys = Day17.encodeFunctions(Day17Test.Ex1)
-    assert(ys.map(_._1).map(Day17.encodeFunctions) contains Seq(82, 44, 56, 44, 82, 44, 56))
-    assert(ys.map(_._2).map(Day17.encodeFunctions) contains Seq(82, 44, 52, 44, 82, 44, 52, 44, 82, 44, 56))
-    assert(ys.map(_._3).map(Day17.encodeFunctions) contains Seq(76, 44, 54, 44, 76, 44, 50))
+  test("encodeFunction") {
+
+    println(Day17.encodeFunction(Day17Test.Ex1, "A"))
+
+
   }
 
-  test("encodeRoutines") {
-    val aF = Seq("R", "8", "R", "8")
-    val bF = Seq("R", "4", "R", "4", "R", "8")
-    val cF = Seq("L", "6", "L", "2")
-    val ys = Day17.encodeRoutines(aF, bF, cF, Day17Test.Ex1)
-    assert(ys == Seq("A", "B", "C", "B", "A", "C"))
-  }
+//  test("encodeFunctions") {
+//    val ys = Day17.encodeFunctions(Day17Test.Ex1)
+//    assert(ys.map(_._1).map(Day17.encodeFunctions) contains Seq(82, 44, 56, 44, 82, 44, 56))
+//    assert(ys.map(_._2).map(Day17.encodeFunctions) contains Seq(82, 44, 52, 44, 82, 44, 52, 44, 82, 44, 56))
+//    assert(ys.map(_._3).map(Day17.encodeFunctions) contains Seq(76, 44, 54, 44, 76, 44, 50))
+//  }
+//
+//  test("encodeRoutines") {
+//    val aF = Seq("R", "8", "R", "8")
+//    val bF = Seq("R", "4", "R", "4", "R", "8")
+//    val cF = Seq("L", "6", "L", "2")
+//    val ys = Day17.encodeRoutines(aF, bF, cF, Day17Test.Ex1)
+//    assert(ys == Seq("A", "B", "C", "B", "A", "C"))
+//  }
 }
 
 object Day17Test {
 
-  val Ex1 = Seq("R", "8", "R", "8", "R", "4", "R", "4", "R", "8", "L", "6", "L", "2", "R", "4", "R", "4", "R", "8", "R", "8", "R", "8", "L", "6", "L", "2")
+  val Ex1 = List("R", "8", "R", "8", "R", "4", "R", "4", "R", "8", "L", "6", "L", "2", "R", "4", "R", "4", "R", "8", "R", "8", "R", "8", "L", "6", "L", "2")
 
 }
