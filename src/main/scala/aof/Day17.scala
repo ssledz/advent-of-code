@@ -230,8 +230,6 @@ object Day17 extends Day {
         dbgF(x, (routines, (aF, bF, cF))) -> (asciiEncode(routines.split(',')), (asciiEncode(aF), asciiEncode(bF), asciiEncode(cF)))
       }
 
-    ys.foreach(y => println(y._1))
-
     val (dbg, (routines, (aF, bF, cF))) = ys.head
 
     println(dbg)
@@ -239,11 +237,11 @@ object Day17 extends Day {
     println(s"aF: [${aF :+ NL}]")
     println(s"bF: [${bF :+ NL}]")
     println(s"cF: [${cF :+ NL}]")
-    println("" + Seq('n'.toInt, NL))
+    println("video feed: " + Seq('n'.toInt, NL))
 
     val input: Seq[Int] = (routines :+ NL) ++ (aF :+ NL) ++ (bF :+ NL) ++ (cF :+ NL) ++ Seq('n'.toInt, NL)
 
-    println("input: [" + input + "]")
+    println("input: " + input.map(_.toString).mkString("[", ",", "]"))
 
     val mem = memory.toArray
     mem(0) = 2
@@ -251,9 +249,9 @@ object Day17 extends Day {
     val c = IntComputer(mem).extendMemory(3 * 1024)
       .runInterpreter(input)
 
-    //    println("output: " + c.output)
+    println("output: " + c.output.map(_.toString).mkString("[", ",", "]"))
 
-    "\n" + c.output.head
+    "" + c.output.head
 
   }
 
