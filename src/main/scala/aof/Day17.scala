@@ -162,24 +162,20 @@ object Day17 extends Day {
     }
   }
 
-  def asciiEncode(xs: Seq[String], nl: Seq[Int] = Seq(NL)): Seq[Int] = xs.flatMap { x =>
+  def asciiEncode(xs: Seq[String]): Seq[Int] = xs.flatMap { x =>
     Coma :: x.toList.map(_.toInt)
-  }.tail ++ nl
+  }.tail
 
-  def encodeFunctions(xs: Seq[Int]): List[(Seq[Int], Seq[Int], Seq[Int])] = {
-
-    def go(xF : List[Int], acc : List[List[Int]] = List.empty) : List[List[Int]] = ???
-
-    ???
+  def encodeFunctions(xs: Seq[String]): List[(Seq[String], Seq[String], Seq[String])] = {
+    List.empty
   }
 
-  def encodeRoutines(a: Seq[Int], b: Seq[Int], c: Seq[Int], xs: Seq[Int]): Seq[Int] = ???
+  def encodeRoutines(a: Seq[String], b: Seq[String], c: Seq[String], xs: Seq[String]): Seq[String] = ???
 
-  def encodePath(xs: Seq[String]): List[(Seq[Int], (Seq[Int], Seq[Int], Seq[Int]))] = {
-    val ys = asciiEncode(xs, Seq.empty)
+  def encodePath(xs: Seq[String]): List[(Seq[String], (Seq[String], Seq[String], Seq[String]))] = {
     for {
-      (aF, bF, cF) <- encodeFunctions(ys)
-    } yield (encodeRoutines(aF, bF, cF, ys), (aF, bF, cF))
+      (aF, bF, cF) <- encodeFunctions(xs)
+    } yield (encodeRoutines(aF, bF, cF, xs), (aF, bF, cF))
   }
 
   def solutionPartB: String = {
@@ -187,9 +183,13 @@ object Day17 extends Day {
 
     println("path.head: " + xs.head.mkString(","))
 
-    val ys = xs.flatMap(encodePath).filter { case (routines, (aF, bF, cF)) =>
-      List(routines, aF, bF, cF).forall(_.size <= MaxFunctionSize)
-    }
+    val ys = xs.flatMap(encodePath)
+      .map { case (routines, (aF, bF, cF)) =>
+        (asciiEncode(routines), (asciiEncode(aF), asciiEncode(bF), asciiEncode(cF)))
+      }
+      .filter { case (routines, (aF, bF, cF)) =>
+        List(routines, aF, bF, cF).forall(_.size <= MaxFunctionSize)
+      }
 
     val (routines, (aF, bF, cF)) = ys.head
 
