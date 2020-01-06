@@ -172,21 +172,30 @@ object Day17 extends Day {
       if (ys.isEmpty) {
         acc + xFun
       } else {
-        val c = ys.substring(0, 1)
+//        val c = ys.substring(0, 1)
+        val comaIdx = ys.indexOf(',')
+        val cnt = if(comaIdx == -1) ys.length else comaIdx max 1
+        val c = ys.substring(0, cnt)
+//        println("ys: " + ys)
+//        println("c: " + c)
         if (routines contains c) {
-          acc + xFun
+//          println(xFun + " ===> " + ys)
+          acc + xFun.substring(0, xFun.length - 1)
         } else {
           val nXFun = xFun + c
-          go(ys.substring(1, ys.length), nXFun, if (ys.contains(nXFun) && c != ",") acc + nXFun else acc)
+          go(ys.substring(cnt, ys.length), nXFun, if (ys.contains(nXFun) && c != ",") acc + nXFun else acc)
         }
       }
     }
+//println("xs::: "+xs)
 
-    go(xs.dropWhile(routines.contains).mkString(","), "", Set.empty)
+    go(xs.dropWhile((routines + ",").contains).mkString(","), "", Set.empty)
       .filterNot(_.isEmpty)
       .filter(_.length <= maxSize)
       .flatMap { x =>
         val ys = x.split(',').toSeq
+//        val res = Set(ys -> xs.mkString(",").replace(x, routine))
+//        res
         replace(xs.mkString(","), x, routine).map(ys -> _)
       }
   }
@@ -224,8 +233,11 @@ object Day17 extends Day {
       (bFun, zs) <- encodeFunction(ys.split(',').toList, "B")
       (cFun, ws) <- encodeFunction(zs.split(',').toList, "C")
     } yield (ws, (aFun, bFun, cFun))
+
     res.filter {
       case (routine, _) =>
+//        println("routine: " + routine)
+//        println(routine.length <= maxSize && routine.split(',').toSet.removedAll(routines).isEmpty)
         routine.length <= maxSize && routine.split(',').toSet.removedAll(routines).isEmpty
     }
   }
@@ -233,16 +245,34 @@ object Day17 extends Day {
   def solutionPartB: String = {
     val xs: Set[Vector[String]] = path(area).map(_.map(_.encode))
 
-    println("path.head: " + xs.head.mkString(","))
+//    println("path.head: " + xs.head.mkString(","))
 
-    val ys = xs.flatMap(x => encodeRoutines(x))
-      .map { case (routines, (aF, bF, cF)) =>
-        (asciiEncode(routines.split(',')), (asciiEncode(aF), asciiEncode(bF), asciiEncode(cF)))
+    def dbgF(path : Seq[String], x: (String, (Seq[String], Seq[String], Seq[String]))): String = x match {
+      case (routine, (aF, bF, cF)) =>
+        "path: ["+ path.mkString(",") + "]" + "\n" + routine + " =>" + "\n  A: [" + aF.mkString(",") + "]" + "\n  B: [" + bF.mkString(",") + "]" + "\n  C: [" + cF.mkString(",") + "]"
+    }
+
+    val ys = xs.flatMap(x => encodeRoutines(x).map(x -> _))
+      .map { case (x, (routines, (aF, bF, cF))) =>
+        dbgF(x, (routines, (aF, bF, cF))) -> (asciiEncode(routines.split(',')), (asciiEncode(aF), asciiEncode(bF), asciiEncode(cF)))
       }
 
-    val (routines, (aF, bF, cF)) = ys.head
+    println()
+    ys.foreach(y => println(y._1))
+    println()
+
+    val (dbg, (routines, (aF, bF, cF))) = ys.head
+
+    println(dbg)
+    println(s"routines: [${routines :+ NL}]")
+    println(s"aF: [${aF :+ NL}]")
+    println(s"bF: [${bF :+ NL}]")
+    println(s"cF: [${cF :+ NL}]")
+    println("" + Seq('n'.toInt, NL))
 
     val input: Seq[Int] = (routines :+ NL) ++ (aF :+ NL) ++ (bF :+ NL) ++ (cF :+ NL) ++ Seq('n'.toInt, NL)
+
+    println("input: [" + input + "]")
 
     val c = IntComputer(memory.toArray).extendMemory(3 * 1024)
       .runInterpreter(input)
@@ -274,7 +304,4 @@ object Day17 extends Day {
 object Day17App extends App {
   println("SolutionPartA: " + solutionPartA)
   println("SolutionPartB: " + solutionPartB)
-  //  println(Math.log10(1))
-  //  println(Math.log10(4).toInt + 1)
-  //  println(Math.log10(10).toInt + 1)
 }
