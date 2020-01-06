@@ -274,7 +274,10 @@ object Day17 extends Day {
 
     println("input: [" + input + "]")
 
-    val c = IntComputer(memory.toArray).extendMemory(3 * 1024)
+    val mem = memory.toArray
+    mem(0) = 2
+
+    val c = IntComputer(mem).extendMemory(3 * 1024)
       .runInterpreter(input)
 
     println("output: " + c.output)
