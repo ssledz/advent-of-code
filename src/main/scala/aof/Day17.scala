@@ -166,7 +166,12 @@ object Day17 extends Day {
     Coma :: x.toList.map(_.toInt)
   }.tail ++ nl
 
-  def encodeFunctions(xs: Seq[Int]): List[(Seq[Int], Seq[Int], Seq[Int])] = ???
+  def encodeFunctions(xs: Seq[Int]): List[(Seq[Int], Seq[Int], Seq[Int])] = {
+
+    def go(xF : List[Int], acc : List[List[Int]] = List.empty) : List[List[Int]] = ???
+
+    ???
+  }
 
   def encodeRoutines(a: Seq[Int], b: Seq[Int], c: Seq[Int], xs: Seq[Int]): Seq[Int] = ???
 
