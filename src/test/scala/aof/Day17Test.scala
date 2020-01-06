@@ -18,39 +18,9 @@ class Day17Test extends AnyFunSuite {
       case (routine, (a, b, c)) => (routine, (a.mkString(","), b.mkString(","), c.mkString(",")))
     }
 
-//    assert(enc(Day17Test.Ex1) contains("A,B,C,B,A,C", ("R,8,R,8", "R,4,R,4,R,8", "L,6,L,2")))
+    assert(enc(Day17Test.Ex1) contains("A,B,C,B,A,C", ("R,8,R,8", "R,4,R,4,R,8", "L,6,L,2")))
 
-//    println(Day17.encodeRoutines(Day17Test.Ex2.split(',')))
-
-//    println("dupa: " + enc(Day17Test.Ex2))
-
-    def dbg(x: (Seq[String], String), label: String): String = s"$label: [${x._1.mkString(",")}] => " + x._2
-
-    Day17.encodeFunction(Day17Test.Ex2.split(','), "A").foreach { case aF@(_, routineA) =>
-
-      Day17.encodeFunction(routineA.split(','), "B").foreach { case bF@(_, routineB) =>
-
-        Day17.encodeFunction(routineB.split(','), "C").foreach { case cF@(_, routineC) =>
-
-          val ws = routineC.split(',').toSet.removedAll(Set("A", "B", "C"))
-
-          if (ws.isEmpty) {
-            println()
-            println(Day17Test.Ex2)
-            println(dbg(aF, "A"))
-            println(dbg(bF, "B"))
-            println(dbg(cF, "C"))
-            println("ws: " + ws)
-          }
-
-        }
-
-
-      }
-
-    }
-
-    //    println("xs: " + enc(Day17Test.Ex2))
+    assert(enc(Day17Test.Ex2) contains("A,B,A,C,A,C,B,C,C,B", ("L,4,L,4,L,10,R,4", "R,4,L,4,L,4,R,8,R,10", "R,4,L,10,R,10")))
 
   }
 

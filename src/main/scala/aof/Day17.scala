@@ -92,8 +92,6 @@ object Day17 extends Day {
 
     val faces = RobotFaces.keys.toSet
 
-    //    val rotations = Vector('^','>', 'v', '<')
-
     def rotate(sf: Int, ef: Int): Option[MovF] = (sf.toChar, ef.toChar) match {
       case ('^', '>') => Some(Turn('R'))
       case ('^', '<') => Some(Turn('L'))
@@ -128,10 +126,6 @@ object Day17 extends Day {
         val ys = movesFrom(pos, face)
           .filter { case (_, _, newPos) => (ints contains newPos) || (notVisited contains newPos) }
           .map { case (newFace, nextMs, newPos) =>
-            //            if(notVisited.size <= 2 ) {
-            //              println("(newFace, pos, newPos, notVisited - pos): " + (newFace, pos, newPos, notVisited - newPos))
-            //              println("min notVisited.size: " + notVisited.size + " => " + notVisited)
-            //            }
             (newFace, ms ++ nextMs, newPos, notVisited - newPos)
           }
         go(ys ::: t, acc)
@@ -140,17 +134,6 @@ object Day17 extends Day {
     }
 
     val start: Vec = area.find { case (_, tile) => faces contains tile }.get._1
-    //    println("start: " + start)
-    //    println("face: " + area(start))
-    //    println("movesFrom: " + movesFrom(start, area(start)))
-    //    println("movesFrom: " + movesFrom(Vec(3, 0), '<'.toInt))
-    //    println("movesFrom: " + movesFrom(Vec(2, 0), '<'.toInt))
-    //    println("movesFrom: " + movesFrom(Vec(1, 0), '<'.toInt))
-    //    println("movesFrom(0, 0): " + movesFrom(Vec(0, 0), '<'.toInt))
-    //    println("movesFrom(0, 1): " + movesFrom(Vec(0, 1), 'v'.toInt))
-    //    println("movesFrom(22, 4): " + movesFrom(Vec(22, 4), '>'.toInt))
-    //    println("movesFrom(23, 4): " + movesFrom(Vec(23, 4), '>'.toInt))
-    //    println("movesFrom(24, 4): " + movesFrom(Vec(24, 4), '>'.toInt))
     val res = go(List((area(start), Vector.empty, start, area.filter { case (_, tile) => tile == Scaffold }.keys.toSet - start)))
     res.toSet.map { moves: Vector[MovF] =>
       moves.foldLeft(Vector.empty[MovF]) { case (acc, move) =>
@@ -172,14 +155,10 @@ object Day17 extends Day {
       if (ys.isEmpty) {
         acc + xFun
       } else {
-//        val c = ys.substring(0, 1)
         val comaIdx = ys.indexOf(',')
-        val cnt = if(comaIdx == -1) ys.length else comaIdx max 1
+        val cnt = if (comaIdx == -1) ys.length else comaIdx max 1
         val c = ys.substring(0, cnt)
-//        println("ys: " + ys)
-//        println("c: " + c)
         if (routines contains c) {
-//          println(xFun + " ===> " + ys)
           acc + xFun.substring(0, xFun.length - 1)
         } else {
           val nXFun = xFun + c
@@ -187,15 +166,13 @@ object Day17 extends Day {
         }
       }
     }
-//println("xs::: "+xs)
 
     go(xs.dropWhile((routines + ",").contains).mkString(","), "", Set.empty)
       .filterNot(_.isEmpty)
       .filter(_.length <= maxSize)
       .flatMap { x =>
         val ys = x.split(',').toSeq
-//        val res = Set(ys -> xs.mkString(",").replace(x, routine))
-//        res
+        //        Set(ys -> xs.mkString(",").replace(x, routine))
         replace(xs.mkString(","), x, routine).map(ys -> _)
       }
   }
@@ -236,8 +213,6 @@ object Day17 extends Day {
 
     res.filter {
       case (routine, _) =>
-//        println("routine: " + routine)
-//        println(routine.length <= maxSize && routine.split(',').toSet.removedAll(routines).isEmpty)
         routine.length <= maxSize && routine.split(',').toSet.removedAll(routines).isEmpty
     }
   }
@@ -245,11 +220,9 @@ object Day17 extends Day {
   def solutionPartB: String = {
     val xs: Set[Vector[String]] = path(area).map(_.map(_.encode))
 
-//    println("path.head: " + xs.head.mkString(","))
-
-    def dbgF(path : Seq[String], x: (String, (Seq[String], Seq[String], Seq[String]))): String = x match {
+    def dbgF(path: Seq[String], x: (String, (Seq[String], Seq[String], Seq[String]))): String = x match {
       case (routine, (aF, bF, cF)) =>
-        "path: ["+ path.mkString(",") + "]" + "\n" + routine + " =>" + "\n  A: [" + aF.mkString(",") + "]" + "\n  B: [" + bF.mkString(",") + "]" + "\n  C: [" + cF.mkString(",") + "]"
+        "path: [" + path.mkString(",") + "]" + "\n" + routine + " =>" + "\n  A: [" + aF.mkString(",") + "]" + "\n  B: [" + bF.mkString(",") + "]" + "\n  C: [" + cF.mkString(",") + "]"
     }
 
     val ys = xs.flatMap(x => encodeRoutines(x).map(x -> _))
@@ -257,9 +230,7 @@ object Day17 extends Day {
         dbgF(x, (routines, (aF, bF, cF))) -> (asciiEncode(routines.split(',')), (asciiEncode(aF), asciiEncode(bF), asciiEncode(cF)))
       }
 
-    println()
     ys.foreach(y => println(y._1))
-    println()
 
     val (dbg, (routines, (aF, bF, cF))) = ys.head
 
@@ -280,7 +251,7 @@ object Day17 extends Day {
     val c = IntComputer(mem).extendMemory(3 * 1024)
       .runInterpreter(input)
 
-    println("output: " + c.output)
+    //    println("output: " + c.output)
 
     "\n" + c.output.head
 
