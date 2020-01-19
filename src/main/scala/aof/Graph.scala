@@ -1,6 +1,6 @@
 package aof
 
-import aof.Graph.{Edge, Label}
+import aof.Graph.{Edge, Label, SearchState}
 
 import scala.annotation.tailrec
 
@@ -68,7 +68,20 @@ object Graph {
 
 object TestApp extends App {
 
-  val g = Graph(10, 0 -> Edge(0), 0 -> Edge(1), 1 -> Edge(2))
+  val g = Graph(10, 0 -> Edge(0), 0 -> Edge(1), 1 -> Edge(2), 2 -> Edge(3), 2 -> Edge(4), 3 -> Edge(4))
   println(Graph.show(g))
+  println(Graph.bfs(g, 0))
+
+  def visitEdge(edge: (Int, Edge), state: SearchState): SearchState = {
+    println(s"visiting edge: $edge")
+    state
+  }
+
+  def visitVertex(v: Int, state: SearchState): SearchState = {
+    println(s"visiting vertex: $v")
+    state
+  }
+
+  println(Graph.bfs(g, 0, visitEdge, visitVertex))
 
 }
