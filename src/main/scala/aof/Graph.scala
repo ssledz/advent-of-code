@@ -23,6 +23,14 @@ object Graph {
     Graph(v2es.foldLeft(zero) { case (acc, (v, edges)) => acc.updated(v, edges) })
   }
 
+  def findPath(start: Int, end: Int, parents: Vector[Int]): Vector[Int] = {
+    @tailrec
+    def go(s: Int, e: Int, acc: Vector[Int]): Vector[Int] =
+      if (s == e || e == -1) s +: acc else go(s, parents(e), e +: acc)
+
+    go(start, end, Vector.empty)
+  }
+
   def bfs(g: Graph, start: Int): Vector[Int] = bfs(g, start, (_, s) => s, (_, s) => s)._1
 
   def bfs(g: Graph, start: Int, visitEdge: ((Int, Edge), SearchState) => SearchState,
@@ -92,6 +100,11 @@ object TestApp extends App {
     state
   }
 
-  println(Graph.bfs(g, 0, visitEdge, visitVertex))
+  val (parents, _) = Graph.bfs(g, 0, visitEdge, visitVertex)
+
+  val path = Graph.findPath(0, 4, parents)
+
+  println("parents: " + parents)
+  println("path: " + path)
 
 }
