@@ -6,7 +6,7 @@ trait Day {
 
   val day: String
 
-  private lazy val rs = getClass.getClassLoader.getResource(s"input/day$day.txt")
+  private lazy val rs = getClass.getClassLoader.getResource(s"input/$day")
 
   lazy val lines = Source.fromFile(rs.toURI).getLines().toList
 

@@ -2,7 +2,7 @@ package aof
 
 object DayTemplate extends Day with App {
 
-  val day: String = "day01.txt"
+  val day: String = "input/day01.txt"
 
   def solutionPartA: String = ""
 
