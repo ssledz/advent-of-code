@@ -6,15 +6,15 @@ object Day01 extends Day with App {
 
   val xs = lines.map(_.toInt)
 
-  def solutionPartA: String =  {
+  def solutionPartA: String = {
     val ys = for {
-     x <- xs
-     y <- xs if x +y == 2020
+      x <- xs
+      y <- xs if x + y == 2020
     } yield x * y
     ys.head.toString
   }
 
-  def solutionPartB: String =  {
+  def solutionPartB: String = {
     val ys = for {
       x <- xs
       y <- xs
