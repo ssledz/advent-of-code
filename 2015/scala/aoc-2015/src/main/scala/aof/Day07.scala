@@ -1,8 +1,8 @@
 package aof
 
-object DayTemplate extends Day with App {
+object Day07 extends Day with App {
 
-  val day: String = "day00.txt"
+  val day: String = "day07.txt"
 
   def solutionPartA: String = ""
 
