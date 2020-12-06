@@ -1,5 +1,8 @@
 package aof
 
+import java.math.BigInteger
+import java.security.MessageDigest
+
 package object utils {
 
   def mergeMaps[K, V](m1: Map[K, V], m2: Map[K, V])(implicit m: Semigroup[V]): Map[K, V] =
@@ -14,7 +17,14 @@ package object utils {
     val (ys, zs) = xs.foldLeft((List.empty[A], List.empty[A])) { case ((xs, ys), e) =>
       (ys, e :: xs)
     }
-    if(xs.length % 2 == 0) (ys.reverse, zs.reverse) else (zs.reverse, ys.reverse)
+    if (xs.length % 2 == 0) (ys.reverse, zs.reverse) else (zs.reverse, ys.reverse)
+  }
+
+  def md5(s: String): String = {
+    val digest = MessageDigest.getInstance("MD5").digest(s.getBytes("UTF-8"))
+    val bigInt = new BigInteger(1, digest)
+    val m = bigInt.toString(16)
+    LazyList.continually("0").take(32 - m.length).mkString + m
   }
 
   trait Semigroup[A] {
