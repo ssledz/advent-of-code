@@ -16,60 +16,30 @@ object Day05 extends Day with App {
     (vc >= 3) && (tc >= 1) && nc
   }
 
-  def niceString2(s: String): Boolean = {
-    val cs = s.toCharArray.toList
+  def nicerString2(s: String): Boolean = {
+    val r1 = """(..).*\1""".r
+    val r2 = """(.).\1""".r
+    r1.findFirstIn(s).isDefined && r2.findFirstIn(s).isDefined
+  }
 
-    def go(xs: List[Char], maybeLast: Option[Char], i: Int, acc: List[((Char, Char), Int)]): List[((Char, Char), Int)] = {
-      def overlapping(a: Char, b: Char, c: Char): Boolean = a.toString + b == b.toString + c
+  def nicerString(s: String): Boolean = {
+    val cs = s.toList
 
-      (maybeLast, xs) match {
-        case (None, a :: b :: c :: t) if overlapping(a, b, c) => go(c :: t, Some(b), i + 2, acc)
-        case (None, a :: b :: t) => go(b :: t, Some(a), i + 1, ((a, b) -> i) :: acc)
-        case (Some(last), a :: b :: c :: t) if !overlapping(last, a, b) && !overlapping(a, b, c) => go(b :: c :: t, Some(a), i + 1, ((a, b) -> i) :: acc)
-        case (Some(last), a :: b :: Nil) if !overlapping(last, a, b) => ((a, b) -> i) :: acc
-        case (Some(_), a :: t) => go(t, Some(a), i + 1, acc)
-        case _ => acc
-      }
+    def go(xs: List[Char]): Boolean = xs match {
+      case a :: b :: t if t.mkString.contains(a.toString + b) => true
+      case _ :: t => go(t)
+      case Nil => false
     }
 
-    val notOverlappingPairs = go(cs, None, 0, List.empty)
-
-    val twoPairs = notOverlappingPairs.groupBy(_._1).view
-      .mapValues(_.map(_._2).sorted)
-      .filter(_._2.size >= 2)
-      .mapValues(xs => (xs.min, xs.max)).toMap
-
-    val ranges = twoPairs.values.toSet
-
-    val b1 = !twoPairs.isEmpty
-
-    def go2(xs: List[Char], i: Int, acc: List[(String, Int)]): List[(String, Int)] = {
-      def pred(a: Char, b: Char, c: Char): Boolean = a == c
-
-      def toStr(a: Char, b: Char, c: Char): String = a.toString + b + c
-
-      xs match {
-        case a :: b :: c :: t if pred(a, b, c) => go2(b :: c :: t, i + 1, (toStr(a, b, c) -> i) :: acc)
-        case _ :: t => go2(t, i + 1, acc)
-        case Nil => acc
-      }
-    }
-
-    val repeatedLetter = go2(cs, 0, List.empty)
-
-//    val b2 = repeatedLetter.exists { case (_, i) => ranges.exists { case (min, max) => i >= min && i <= max }}
-    val b2 = !repeatedLetter.isEmpty
-
+    val b1 = go(cs)
+    val b2 = cs.zip(cs.drop(1)).zip(cs.drop(2)).exists { case ((a, _), c) => a == c }
     b1 && b2
   }
 
   def solutionPartA: String = lines.map(niceString).count(identity).toString
 
-  def solutionPartB: String = lines.map(niceString2).count(identity).toString
+  def solutionPartB: String = lines.map(nicerString).count(identity).toString
 
   run()
-
-  println(niceString2("aaabbaa"))
-//  println(lines.filter(niceString2).mkString("\n"))
 
 }

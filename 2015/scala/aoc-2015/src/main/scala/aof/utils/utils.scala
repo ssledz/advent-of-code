@@ -23,6 +23,17 @@ package object utils {
     go(xs, ys, List.empty).reverse
   }
 
+  def windowed[A](xs: List[A], n: Int): (List[A], List[List[A]]) = {
+    def go(xs: List[A], curr: List[A], acc: List[List[A]]): (List[A], List[List[A]]) = xs match {
+      case h :: t if curr.size == n => go(t, List(h), curr.reverse :: acc)
+      case h :: t => go(t, h :: curr, acc)
+      case Nil if curr.size == n => (List.empty[A], (curr.reverse :: acc).reverse)
+      case Nil => curr -> acc.reverse
+    }
+
+    go(xs, List.empty, List.empty)
+  }
+
   def spanEven[A](xs: List[A]): (List[A], List[A]) = {
     val (ys, zs) = xs.foldLeft((List.empty[A], List.empty[A])) { case ((xs, ys), e) =>
       (ys, e :: xs)
