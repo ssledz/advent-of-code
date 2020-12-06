@@ -13,6 +13,16 @@ package object utils {
       }
     }
 
+  def zipRight[A, B](xs: List[A], ys: List[B]): List[(A, Option[B])] = {
+    def go(xs: List[A], ys: List[B], acc: List[(A, Option[B])]): List[(A, Option[B])] = (xs, ys) match {
+      case (xh :: xt, yh :: yt) => go(xt, yt, (xh, Some(yh)) :: acc)
+      case (Nil, _) => acc
+      case (xh :: xt, Nil) => go(xt, Nil, (xh, None) :: acc)
+    }
+
+    go(xs, ys, List.empty).reverse
+  }
+
   def spanEven[A](xs: List[A]): (List[A], List[A]) = {
     val (ys, zs) = xs.foldLeft((List.empty[A], List.empty[A])) { case ((xs, ys), e) =>
       (ys, e :: xs)
