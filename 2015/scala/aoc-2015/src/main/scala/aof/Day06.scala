@@ -17,37 +17,26 @@ object Day06 extends Day with App {
 
   def set(grid: Array[Array[Int]])(x: Int, y: Int, value: Int): Unit = grid(y)(x) = value
 
-  def runCommands(grid: Array[Array[Int]], cmds: List[Command]): Unit = {
+  def runCommands(grid: Array[Array[Int]], cmds: List[Command])(f: Command => Int => Int): Unit = {
     cmds.foreach { cmd =>
       for {
         x <- cmd.start._1 to cmd.end._1
         y <- cmd.start._2 to cmd.end._2
       } yield {
-        update(grid, x, y)(cmd.fun)
-      }
-    }
-  }
-
-  def runCommands2(grid: Array[Array[Int]], cmds: List[Command]): Unit = {
-    cmds.foreach { cmd =>
-      for {
-        x <- cmd.start._1 to cmd.end._1
-        y <- cmd.start._2 to cmd.end._2
-      } yield {
-        update(grid, x, y)(cmd.fun2)
+        update(grid, x, y)(f(cmd))
       }
     }
   }
 
   def solutionPartA: String = {
     val localGrid = grid
-    runCommands(localGrid, commands)
+    runCommands(localGrid, commands)(_.fun)
     localGrid.map(_.sum).sum.toString
   }
 
   def solutionPartB: String = {
     val localGrid = grid
-    runCommands2(localGrid, commands)
+    runCommands(localGrid, commands)(_.fun2)
     localGrid.map(_.sum).sum.toString
   }
 
