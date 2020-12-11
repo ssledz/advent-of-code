@@ -48,41 +48,27 @@ object Day10 extends Day with App {
   }
 
   def arrangements(xs: List[Int]): Long = {
-
-    def go(xs: List[Int]): Int = xs match {
-      case a :: b :: c :: t if c - a <= 3 => go(a :: c :: t) + go(b :: c :: t)
-      case _ :: _ :: Nil                  => 1
-      case _ :: t                         => go(t)
+    import collection.mutable
+    val m: mutable.Map[List[Int], Long] = mutable.Map.empty[List[Int], Long]
+    def memo[A, B](m: mutable.Map[A, B])(f: A => B): A => B = key => {
+      if (m.contains(key)) {
+        m(key)
+      } else {
+        val value = f(key)
+        m.update(key, value)
+        value
+      }
     }
-
+    def go(xs: List[Int]): Long = xs match {
+      case a :: b :: c :: t if c - a <= 3 => memo(m)(go)(a :: c :: t) + memo(m)(go)(b :: c :: t)
+      case _ :: _ :: Nil                  => 1
+      case _ :: t                         => memo(m)(go)(t)
+    }
     val sorted = xs.sorted
     go(0 :: sorted ::: List(sorted.max + 3))
-
   }
 
-  def arrangements2(xs: List[Int]): Long = {
-
-    def go(xs: List[Int], prev: Int): Long = xs match {
-      case a :: b :: c :: d :: t if d - a <= 3 && a - prev < 3 => 1 + 6 * go(d :: t, c)
-      case a :: b :: c :: d :: t if d - a <= 3                 => 1 + 3 * go(d :: t, c)
-      //      case a :: b :: c :: t if c - a <= 3 && a - prev < 3 => 1 + 5 * go(c :: t, b)
-      case a :: b :: c :: t if c - a <= 3 && a - prev <= 3 => 1 + 2 * go(c :: t, b)
-      case a :: b :: c :: t if c - a <= 3                  => 1 + go(c :: t, b)
-      case a :: b :: t if b - prev <= 3                    => 2 * go(b :: t, a)
-      case a :: _ :: Nil                                   => 1
-      case a :: t                                          => go(t, a)
-      case Nil                                             => 0
-    }
-
-    val sorted = xs.sorted
-    go(sorted ::: List(sorted.max + 3), 0)
-  }
-
-  def solutionPartB: String = {
-    val sorted = adapters.sorted
-    println(sorted)
-    arrangements(adapters).toString
-  }
+  def solutionPartB: String = arrangements(adapters).toString
 
   run()
 }
