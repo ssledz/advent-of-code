@@ -4,7 +4,9 @@ object Day11 extends Day with App {
 
   type Point = (Int, Int)
 
-  type Rule = (Map[Point, Char], Point) => Char => Char
+  type Area = Map[Point, Char]
+
+  type Rule = (Area, Point) => Char => Char
 
   val day: String = "day11.txt"
 
@@ -24,15 +26,18 @@ object Day11 extends Day with App {
       }
   }
 
-  def newRule1(adjacent: Point => List[Point])(area: Map[Point, Char], p: Point)(c: Char): Char =
-    if (c == 'L' && !adjacent(p).exists(p => area(p) == '#')) '#' else c
+  def newRule1(canSee: (Area, Point) => List[Point])(area: Area, p: Point)(c: Char): Char =
+    if (c == 'L' && !canSee(area, p).exists(p => area(p) == '#')) '#' else c
 
-  def newRule2(adjacent: Point => List[Point])(area: Map[Point, Char], p: Point)(c: Char): Char =
-    if (c == '#' && adjacent(p).count(p => area(p) == '#') >= 4) 'L' else c
+  def newRule2(canSee: (Area, Point) => List[Point])(area: Area, p: Point)(c: Char): Char =
+    if (c == '#' && canSee(area, p).count(p => area(p) == '#') >= 4) 'L' else c
 
-  def simulate(area: Map[Point, Char], rule1: Rule, rule2: Rule): Int = {
+  def newRule22(canSee: (Area, Point) => List[Point])(area: Area, p: Point)(c: Char): Char =
+    if (c == '#' && canSee(area, p).count(p => area(p) == '#') >= 5) 'L' else c
+
+  def simulate(area: Area, rule1: Rule, rule2: Rule): Int = {
     // area -> changed
-    def iter(area: Map[Point, Char]): (Map[Point, Char], Boolean) = {
+    def iter(area: Area): (Area, Boolean) = {
       val (newArea, changed) = indices.foldLeft((List.empty[(Point, Char)], false)) {
         case ((acc, changed), p) =>
           val rule = rule1(area, p).andThen(rule2(area, p))
@@ -42,7 +47,7 @@ object Day11 extends Day with App {
       }
       (newArea.toMap, changed)
     }
-    def go(area: Map[Point, Char]): Map[Point, Char] = {
+    def go(area: Area): Area = {
       val (newArea, changed) = iter(area)
       if (changed) go(newArea) else newArea
     }
@@ -50,12 +55,12 @@ object Day11 extends Day with App {
     stabilizedArea.values.count(_ == '#')
   }
 
-  def solutionPartA: String = simulate(area, newRule1(adjacent(w, h)), newRule2(adjacent(w, h))).toString
+  def solutionPartA: String = simulate(area, newRule1((_, p) => adjacent(w, h)(p)), newRule2((_, p) => adjacent(w, h)(p))).toString
 
   def solutionPartB: String =
     ""
 
-  def show(area: Map[Point, Char], w: Int, h: Int): String = (0 until h).map(y => (0 until w).map(x => area(x -> y)).mkString).mkString("\n")
+  def show(area: Area, w: Int, h: Int): String = (0 until h).map(y => (0 until w).map(x => area(x -> y)).mkString).mkString("\n")
 
   run()
 }
