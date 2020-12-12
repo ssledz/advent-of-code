@@ -35,7 +35,9 @@ object Day11 extends Day with App {
   def newRule22(canSee: (Area, Point) => List[Point])(area: Area, p: Point)(c: Char): Char =
     if (c == '#' && canSee(area, p).count(p => area(p) == '#') >= 5) 'L' else c
 
-  def canSee(w: Int, h: Int)(area: Area, p: Point): List[Point] = {
+  def canSee1(w: Int, h: Int)(area: Area, p: Point): List[Point] = adjacent(w, h)(p)
+
+  def canSee2(w: Int, h: Int)(area: Area, p: Point): List[Point] = {
 
     def pred(p: Point): Boolean = area(p) != '.'
 
@@ -77,9 +79,9 @@ object Day11 extends Day with App {
     stabilizedArea.values.count(_ == '#')
   }
 
-  def solutionPartA: String = simulate(area, newRule1((_, p) => adjacent(w, h)(p)), newRule2((_, p) => adjacent(w, h)(p))).toString
+  def solutionPartA: String = simulate(area, newRule1(canSee1(w, h)), newRule2(canSee1(w, h))).toString
 
-  def solutionPartB: String = simulate(area, newRule1(canSee(w, h)), newRule22(canSee(w, h))).toString
+  def solutionPartB: String = simulate(area, newRule1(canSee2(w, h)), newRule22(canSee2(w, h))).toString
 
   def show(area: Area, w: Int, h: Int): String = (0 until h).map(y => (0 until w).map(x => area(x -> y)).mkString).mkString("\n")
 
