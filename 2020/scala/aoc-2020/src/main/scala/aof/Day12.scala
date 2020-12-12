@@ -34,19 +34,36 @@ object Day12 extends Day with App {
     }
   }
 
-  def doMove(actions: List[Action], face: Face, start: Position): (Face, Position) =
-    actions.foldLeft((face, start)) {
-      case ((face, pos), action) =>
-        val (newFace, dPos) = move(action, face)
-        (newFace, pos + dPos)
-    }
-
-  def solutionPartA: String = {
-    val (_, pos) = doMove(actions, 1, (0, 0))
-    pos.norm.toString
+  def rotateWaypoint(p: Position, degree: Int, dir: Char): Position = (dir, degree, p) match {
+    case ('R', 90, (x, y)) => (-y, x)
+    case ('L', 90, (x, y)) => (y, -x)
+    case _                 => rotateWaypoint(rotateWaypoint(p, 90, dir), degree - 90, dir)
   }
 
-  def solutionPartB: String = ""
+  def move2(a: Action, waypoint: Position): (Position, Vector) = {
+    val (dir, r) = a
+    dir match {
+      case 'N'       => waypoint + (0, -1) * r -> (0, 0)
+      case 'S'       => waypoint + (0, 1) * r -> (0, 0)
+      case 'W'       => waypoint + (-1, 0) * r -> (0, 0)
+      case 'E'       => waypoint + (1, 0) * r -> (0, 0)
+      case 'F'       => waypoint -> waypoint * r
+      case 'L' | 'R' => rotateWaypoint(waypoint, r, dir) -> (0, 0)
+    }
+  }
+
+  def doMove[A](actions: List[Action], face: A, start: Position, move: (Action, A) => (A, Vector)): Position =
+    actions
+      .foldLeft((face, start)) {
+        case ((face, pos), action) =>
+          val (newFace, dPos) = move(action, face)
+          (newFace, pos + dPos)
+      }
+      ._2
+
+  def solutionPartA: String = doMove(actions, 1, (0, 0), move).norm.toString
+
+  def solutionPartB: String = doMove(actions, (10, -1), (0, 0), move2).norm.toString
 
   run()
 }
