@@ -36,7 +36,25 @@ object Day11 extends Day with App {
     if (c == '#' && canSee(area, p).count(p => area(p) == '#') >= 5) 'L' else c
 
   def canSee(w: Int, h: Int)(area: Area, p: Point): List[Point] = {
-    adjacent(w, h)(p)
+
+    def pred(p: Point): Boolean = area(p) != '.'
+
+    val rx = (p._1 + 1) until w
+    val lx = (p._1 - 1) to (0, -1)
+    val downY = (p._2 + 1) until h
+    val upY = (p._2 - 1) to (0, -1)
+
+    val r = rx.map(x => (x, p._2))
+    val l = lx.map(x => (x, p._2))
+    val down = downY.map(y => (p._1, y))
+    val up = upY.map(y => (p._1, y))
+
+    val rUp = rx.zip(upY)
+    val lUp = lx.zip(upY)
+    val rDown = rx.zip(downY)
+    val lDown = lx.zip(downY)
+
+    List(r, l, up, down, rUp, lUp, rDown, lDown).flatMap(_.find(pred))
   }
 
   def simulate(area: Area, rule1: Rule, rule2: Rule): Int = {
