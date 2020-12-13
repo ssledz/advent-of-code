@@ -25,60 +25,28 @@ object Day13 extends Day with App {
 
   def lcm(a: Long, b: Long): Long = (a * b) / gcd(a, b)
 
-  def timestampOfSlow(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
-    val lc = xs.map(_._1).reduce(lcm)
-    val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
-
-    def iter(t: Long, xs: List[(Long, Id, Int)], dt: Long): Long = {
-      val stop = xs.forall { case (l, id, i) => (t + i) % id == 0 }
-      if (stop) t else iter(t + dt, xs, dt)
-    }
-    val (_, dt, _) = ys.head
-    iter((t / dt) * dt, ys, maybeDt.getOrElse(dt))
-  }
-
-  def timestampOfFast(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
-    val lc = xs.map(_._1).reduce(lcm)
-    val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
-    val (_, dt, _) = ys.head
+  def timestampOf(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
+    val ys: List[(Id, Int)] = xs.map { case (id, i) => (id, i) }
+    val (dt, _) = ys.head
     val (rm, dt2) = {
-      val zz = ys.filter(_._3 % dt == 0).map(x => x._2)
+      val zz = ys.filter(_._2 % dt == 0).map(x => x._1)
       (if (zz.size == 1) 0L else dt) -> zz.foldLeft(dt)(lcm)
     }
 
-    def iter(t: Long, xs: List[(Long, Id, Int)], dt: Long): Long = {
-      val stop = xs.forall { case (l, id, i) => (t + i - rm) % id == 0 }
-      if (stop) t else iter(t + dt, xs, dt)
+    def iter(t: Long, xs: List[(Id, Int)], dt: Long, tt: Long): Long = {
+      if (tt < t) {
+        println("dbg: " + t)
+      }
+      val stop = xs.forall { case (id, i) => (t + i - rm) % id == 0 }
+      if (stop) t else iter(t + dt, xs, dt, if (tt < t) t + 100000000 * dt else tt)
     }
 
-    iter((t / dt2) * dt2, ys, maybeDt.getOrElse(dt2)) - rm
+    iter((t / dt2) * dt2, ys, maybeDt.getOrElse(dt2), 0) - rm
   }
 
   def solutionPartB: String = {
     val xs = ids.zipWithIndex.filterNot(_._1 == "x").map { case (x, i) => x.toLong -> i }
-//    timestampOfFast(xs, 760171380521445L, None).toString
-    timestampOfFast(xs, 760171380521445L, None).toString
-
-//    val dt = lcm(17, 643)
-//    println(dt)
-//    val lc = xs.map(_._1).reduce(lcm)
-//    val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
-//
-//    def iter(t: Long, dt: Long, tt: Long): Long = {
-//      if (tt < t) {
-//        println(t)
-//      }
-//      val stop = ys.forall { case (l, id, i) =>
-//        val tmp = (t + i - 17)
-//        tmp % id == 0
-//      }
-//      if (stop) t else iter(t + dt, dt, if (tt < t) t + 100000000 * dt else tt)
-//    }
-//
-//    val start = 760171380521445L
-//    val xxx = iter((start / dt) * dt, dt, 0) - 17
-//    println(xxx)
-
+    timestampOf(xs, 760171380521445L, None).toString
   }
 
   run()

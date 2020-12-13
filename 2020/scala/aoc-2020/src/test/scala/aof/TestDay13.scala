@@ -7,8 +7,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class TestDay13 extends AnyFunSuite {
 
   test("test timestampOf") {
-//    testAlg(Day13.timestampOfSlow)
-    testAlg(Day13.timestampOfFast)
+    testAlg(Day13.timestampOf)
   }
 
   def testAlg(f: (List[(Id, Int)], Long, Option[Id]) => Long): Unit =
