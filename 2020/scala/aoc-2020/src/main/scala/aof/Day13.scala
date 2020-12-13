@@ -25,22 +25,63 @@ object Day13 extends Day with App {
 
   def lcm(a: Long, b: Long): Long = (a * b) / gcd(a, b)
 
-  def timestampOf(xs: List[(Id, Int)]): Long = {
+  def timestampOf(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
     val lc = xs.map(_._1).reduce(lcm)
     val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
 
     def iter(t: Long, xs: List[(Long, Id, Int)], dt: Long): Long = {
-      val stop = xs.forall { case (l, id, i) => l * (t + i) % id == 0 }
+      val stop = xs.forall { case (l, id, i) => (t + i) % id == 0 }
       if (stop) t else iter(t + dt, xs, dt)
     }
     val (_, dt, _) = ys.head
-//    val dt2 = ys.filter(_._3 % dt == 0).map(x => x._2 - x._3).max
-    iter(0, ys, dt)
+    iter((t / dt) * dt, ys, maybeDt.getOrElse(dt))
+  }
+
+  def timestampOf2(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
+    val lc = xs.map(_._1).reduce(lcm)
+    val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
+    val (_, dt, _) = ys.head
+    val (rm, dt2) = {
+      val zz = ys.filter(_._3 % dt == 0).map(x => x._2)
+      (if (zz.size == 1) 0L else dt) -> zz.foldLeft(dt)(lcm)
+    }
+
+    def iter(t: Long, xs: List[(Long, Id, Int)], dt: Long): Long = {
+      val stop = xs.forall { case (l, id, i) => (t + i - rm) % id == 0 }
+      if (stop) t else iter(t + dt, xs, dt)
+    }
+
+    iter((t / dt2) * dt2, ys, maybeDt.getOrElse(dt2)) - rm
   }
 
   def solutionPartB: String = {
     val xs = ids.zipWithIndex.filterNot(_._1 == "x").map { case (x, i) => x.toLong -> i }
-    timestampOf(xs).toString
+    println(xs)
+//    timestampOf(xs, 100000000000000L, None).toString
+
+    val dt = lcm(17, 643)
+    println(dt)
+    val lc = xs.map(_._1).reduce(lcm)
+    val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
+
+    def iter(t: Long, dt: Long, tt: Long): Long = {
+      if (tt < t) {
+        println(t)
+      }
+      val stop = ys.forall { case (l, id, i) =>
+        val tmp = (t + i - 17)
+//        println(tmp)
+        tmp % id == 0
+      }
+      if (stop) t else iter(t + dt, dt, if (tt < t) t + 100000000 * dt else tt)
+    }
+
+    val start = 100000000000000L
+//    val start = 625781105255644L
+    val xxx = iter((start / dt) * dt, dt, 0) - 17
+    println(xxx)
+
+    ""
   }
 
   run()

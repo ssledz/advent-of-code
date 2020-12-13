@@ -8,6 +8,7 @@ class TestDay13 extends AnyFunSuite {
 
   test("test timestampOf") {
     testAlg(Day13.timestampOf)
+    testAlg(Day13.timestampOf2)
   }
 
   test("test") {
@@ -19,8 +20,11 @@ class TestDay13 extends AnyFunSuite {
     println(Day13.timestampOf(List((13L, 0), (19L, 1))))
   }
 
-  def testAlg(f: List[(Id, Int)] => Long): Unit =
-    Examples.foreach { case (xs, ts) => assert(f(xs) === ts) }
+  def testAlg(f: (List[(Id, Int)], Long, Option[Id]) => Long): Unit =
+    Examples.foreach { case (xs, ts) =>
+      println(s"$xs -> $ts")
+      assert(f(xs, 0, None: Option[Id]) === ts)
+    }
 
 }
 
@@ -31,6 +35,7 @@ object TestDay13 {
     List((1789L, 0), (37L, 1), (47L, 2), (1889L, 3)) -> 1202161486,
     List((67L, 0), (7L, 1), (59L, 2), (61L, 3)) -> 754018,
     List((67L, 0), (7L, 2), (59L, 3), (61L, 4)) -> 779210,
+//    List((17L,0), (41L,7), (643L,17), (23L,25), (13L,30), (29L,46), (433L,48), (37L,54), (19L,67)) -> ???,
     List((67L, 0), (7L, 1), (59L, 3), (61L, 4)) -> 1261476
   )
 }
