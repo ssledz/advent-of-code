@@ -25,7 +25,7 @@ object Day13 extends Day with App {
 
   def lcm(a: Long, b: Long): Long = (a * b) / gcd(a, b)
 
-  def timestampOf(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
+  def timestampOfSlow(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
     val lc = xs.map(_._1).reduce(lcm)
     val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
 
@@ -37,7 +37,7 @@ object Day13 extends Day with App {
     iter((t / dt) * dt, ys, maybeDt.getOrElse(dt))
   }
 
-  def timestampOf2(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
+  def timestampOfFast(xs: List[(Id, Int)], t: Long = 0, maybeDt: Option[Long] = None): Long = {
     val lc = xs.map(_._1).reduce(lcm)
     val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
     val (_, dt, _) = ys.head
@@ -56,32 +56,29 @@ object Day13 extends Day with App {
 
   def solutionPartB: String = {
     val xs = ids.zipWithIndex.filterNot(_._1 == "x").map { case (x, i) => x.toLong -> i }
-    println(xs)
-//    timestampOf(xs, 100000000000000L, None).toString
+//    timestampOfFast(xs, 760171380521445L, None).toString
+    timestampOfFast(xs, 760171380521445L, None).toString
 
-    val dt = lcm(17, 643)
-    println(dt)
-    val lc = xs.map(_._1).reduce(lcm)
-    val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
+//    val dt = lcm(17, 643)
+//    println(dt)
+//    val lc = xs.map(_._1).reduce(lcm)
+//    val ys: List[(Long, Id, Int)] = xs.map { case (id, i) => (lc / id, id, i) }
+//
+//    def iter(t: Long, dt: Long, tt: Long): Long = {
+//      if (tt < t) {
+//        println(t)
+//      }
+//      val stop = ys.forall { case (l, id, i) =>
+//        val tmp = (t + i - 17)
+//        tmp % id == 0
+//      }
+//      if (stop) t else iter(t + dt, dt, if (tt < t) t + 100000000 * dt else tt)
+//    }
+//
+//    val start = 760171380521445L
+//    val xxx = iter((start / dt) * dt, dt, 0) - 17
+//    println(xxx)
 
-    def iter(t: Long, dt: Long, tt: Long): Long = {
-      if (tt < t) {
-        println(t)
-      }
-      val stop = ys.forall { case (l, id, i) =>
-        val tmp = (t + i - 17)
-//        println(tmp)
-        tmp % id == 0
-      }
-      if (stop) t else iter(t + dt, dt, if (tt < t) t + 100000000 * dt else tt)
-    }
-
-    val start = 100000000000000L
-//    val start = 625781105255644L
-    val xxx = iter((start / dt) * dt, dt, 0) - 17
-    println(xxx)
-
-    ""
   }
 
   run()

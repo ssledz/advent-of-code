@@ -7,35 +7,27 @@ import org.scalatest.funsuite.AnyFunSuite
 class TestDay13 extends AnyFunSuite {
 
   test("test timestampOf") {
-    testAlg(Day13.timestampOf)
-    testAlg(Day13.timestampOf2)
-  }
-
-  test("test") {
-    //3417  =>  List((17,0), (13,2), (19,3))
-    //102(17)   => List((17,0), (13,2))
-    //208(13)  =>  List((13,0), (19,1))
-    println(Day13.timestampOf(List((17L, 0), (13L, 2), (19L, 3))))
-    println(Day13.timestampOf(List((17L, 0), (13L, 2))))
-    println(Day13.timestampOf(List((13L, 0), (19L, 1))))
+//    testAlg(Day13.timestampOfSlow)
+    testAlg(Day13.timestampOfFast)
   }
 
   def testAlg(f: (List[(Id, Int)], Long, Option[Id]) => Long): Unit =
-    Examples.foreach { case (xs, ts) =>
-      println(s"$xs -> $ts")
-      assert(f(xs, 0, None: Option[Id]) === ts)
+    Examples.foreach {
+      case (xs, (start, ts)) =>
+        println(s"$xs -> $ts")
+        assert(f(xs, start, None: Option[Id]) === ts)
     }
 
 }
 
 object TestDay13 {
   val Examples = List(
-    List((7L, 0), (13L, 1), (59L, 4), (31L, 6), (19L, 7)) -> 1068781,
-    List((17L, 0), (13L, 2), (19L, 3)) -> 3417,
-    List((1789L, 0), (37L, 1), (47L, 2), (1889L, 3)) -> 1202161486,
-    List((67L, 0), (7L, 1), (59L, 2), (61L, 3)) -> 754018,
-    List((67L, 0), (7L, 2), (59L, 3), (61L, 4)) -> 779210,
-//    List((17L,0), (41L,7), (643L,17), (23L,25), (13L,30), (29L,46), (433L,48), (37L,54), (19L,67)) -> ???,
-    List((67L, 0), (7L, 1), (59L, 3), (61L, 4)) -> 1261476
+    List((7L, 0), (13L, 1), (59L, 4), (31L, 6), (19L, 7)) -> (0L, 1068781),
+    List((17L, 0), (13L, 2), (19L, 3)) -> (0L, 3417),
+    List((1789L, 0), (37L, 1), (47L, 2), (1889L, 3)) -> (0L, 1202161486),
+    List((67L, 0), (7L, 1), (59L, 2), (61L, 3)) -> (0L, 754018),
+    List((67L, 0), (7L, 2), (59L, 3), (61L, 4)) -> (0L, 779210),
+    List((17L,0), (41L,7), (643L,17), (23L,25), (13L,30), (29L,46), (433L,48), (37L,54), (19L,67)) -> (760071380521445L, 760171380521445L),
+    List((67L, 0), (7L, 1), (59L, 3), (61L, 4)) -> (0L, 1261476)
   )
 }
