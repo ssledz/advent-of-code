@@ -29,12 +29,19 @@ object Day14 extends Day with App {
   def run(memory: Memory, program: List[CodeSegment])(f: (Memory, BitMask, WriteInstruction) => Memory): Memory = program match {
     case h :: t =>
       val newMem = h.ins.foldLeft(memory) { (mem, instr) =>
-//        println(s"value: ${mem.get(instr.address)}")
-//        println(s"mask: ${h.mask} (${h.mask.init}\t${h.mask.mask})")
         f(mem, h.mask, instr)
       }
       run(newMem, t)(f)
     case Nil => memory
+  }
+
+  def decoderFun(mem: Memory, mask: BitMask, instr: WriteInstruction): Memory = {
+    val base = instr.address | mask.init
+    val addresses: List[Long] = mask.floatingMasks.map { bits =>
+      val (zeros, ones) = maskFrom(bits)
+      (base & zeros) | ones
+    }
+    addresses.foldLeft(mem)((m, address) => m.updated(address, instr.value))
   }
 
   def solutionPartA: String = {
@@ -44,27 +51,44 @@ object Day14 extends Day with App {
     memory.values.sum.toString
   }
 
-  def decoderFun(mem: Memory, mask: BitMask, instr: WriteInstruction): Memory = {
-    val base = instr.address | mask.init
-    val addresses: List[Long] = List(base)
-    addresses.foldLeft(mem)((m, address) => m.updated(address, instr.value))
-  }
-
   def solutionPartB: String = run(Map.empty, program)(decoderFun).values.sum.toString
 
   case class CodeSegment(mask: BitMask, ins: List[WriteInstruction])
+
   case class BitMask(underlying: String) {
 
     lazy val (mask, init): (Long, Long) = {
       import java.lang
       val init = lang.Long.parseUnsignedLong(underlying.replace('X', '0'), 2)
-//      println("init: "+underlying.replace('X', '0'))
-//      println("init: "+init)
       val mask = lang.Long.parseUnsignedLong(underlying.replace('1', '0').replace('X', '1'), 2)
-//      println("mask: "+underlying.replace('1', '0').replace('X', '1'))
-//      println("mask: "+mask)
       (mask, init)
     }
+
+    def floatingMasks: List[List[(Int, Boolean)]] =
+      for {
+        ones <- subsetsOf(floating).toList
+      } yield floating.map(pos => pos -> ones.contains(pos))
+
+    def subsetsOf(xs: List[Int]): Set[Set[Int]] = xs match {
+      case h :: Nil => Set(Set(h), Set.empty)
+      case h :: t   => subsetsOf(t).flatMap(s => Set(s, s + h))
+      case Nil      => Set.empty
+    }
+
+    val floating: List[Int] = underlying.toList.reverse.zipWithIndex.filter(_._1 == 'X').map(_._2)
+  }
+
+  // zeros -> ones
+  def maskFrom(xs: List[(Int, Boolean)]): (Long, Long) = {
+    val ones = xs.foldLeft(0L) {
+      case (acc, (pos, b)) if b => acc | (1L << pos)
+      case (acc, _)             => acc
+    }
+    val zeros = xs.foldLeft(~0L) {
+      case (acc, (pos, _)) => acc ^ (1L << pos)
+    }
+    val mask36 = 0xfffffffffL
+    (zeros & mask36, ones & mask36)
   }
 
   object BitMask {
