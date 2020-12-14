@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 
 object Day14 extends Day with App {
 
-  type Memory = Map[Int, Long]
+  type Memory = Map[Long, Long]
 
   val day: String = "day14.txt"
 
@@ -44,9 +44,11 @@ object Day14 extends Day with App {
     memory.values.sum.toString
   }
 
-  def decoderFun(mem: Memory, mas: BitMask, instr: WriteInstruction): Memory =
-    //
-    mem
+  def decoderFun(mem: Memory, mask: BitMask, instr: WriteInstruction): Memory = {
+    val base = instr.address | mask.init
+    val addresses: List[Long] = List(base)
+    addresses.foldLeft(mem)((m, address) => m.updated(address, instr.value))
+  }
 
   def solutionPartB: String = run(Map.empty, program)(decoderFun).values.sum.toString
 
@@ -69,13 +71,13 @@ object Day14 extends Day with App {
     def from(s: String): BitMask = BitMask(s.stripPrefix("mask = "))
   }
 
-  case class WriteInstruction(address: Int, value: Long)
+  case class WriteInstruction(address: Long, value: Long)
 
   object WriteInstruction {
     def from(s: String): WriteInstruction = {
       val arr = s.split('=')
       val value = arr(1).trim.toLong
-      val memory = arr(0).trim.stripPrefix("mem[").stripSuffix("]").toInt
+      val memory = arr(0).trim.stripPrefix("mem[").stripSuffix("]").toLong
       WriteInstruction(memory, value)
     }
   }
