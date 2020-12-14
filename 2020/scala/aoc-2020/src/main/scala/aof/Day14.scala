@@ -44,7 +44,11 @@ object Day14 extends Day with App {
     memory.values.sum.toString
   }
 
-  def solutionPartB: String = ""
+  def decoderFun(mem: Memory, mas: BitMask, instr: WriteInstruction): Memory =
+    //
+    mem
+
+  def solutionPartB: String = run(Map.empty, program)(decoderFun).values.sum.toString
 
   case class CodeSegment(mask: BitMask, ins: List[WriteInstruction])
   case class BitMask(underlying: String) {
