@@ -14,6 +14,7 @@ object Day14 extends Day with App {
 
   def loadProgram: List[CodeSegment] = {
 
+    @tailrec
     def go(mask: BitMask, xs: List[String], instr: List[WriteInstruction], acc: List[CodeSegment]): List[CodeSegment] = xs match {
       case h :: t if h.startsWith("mask") => go(BitMask.from(h), t, List.empty, CodeSegment(mask, instr.reverse) :: acc)
       case h :: t                         => go(mask, t, WriteInstruction.from(h) :: instr, acc)
