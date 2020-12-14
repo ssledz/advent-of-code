@@ -4,6 +4,8 @@ import scala.annotation.tailrec
 
 object Day14 extends Day with App {
 
+  type Memory = Map[Int, Long]
+
   val day: String = "day14.txt"
 
   val program: List[CodeSegment] = loadProgram
@@ -24,35 +26,22 @@ object Day14 extends Day with App {
   }
 
   @tailrec
-  def run(memory: Map[Int, Long], program: List[CodeSegment]): Map[Int, Long] = program match {
+  def run(memory: Memory, program: List[CodeSegment])(f: (Memory, BitMask, WriteInstruction) => Memory): Memory = program match {
     case h :: t =>
       val newMem = h.ins.foldLeft(memory) { (mem, instr) =>
-        println(s"value: ${mem.get(instr.address)}")
-        println(s"mask: ${h.mask} (${h.mask.init}\t${h.mask.mask})")
-
-        val x= mem.updated(instr.address, h.mask.init | (instr.value & h.mask.mask))
-
-//        val x= mem.updatedWith(instr.address) {
-//          case Some(_) => Some(h.mask.init | (instr.value & h.mask.mask))
-//          case None => Some(h.mask.init)
-//        }
-        println(s"result: ${x(instr.address)}")
-        x
+//        println(s"value: ${mem.get(instr.address)}")
+//        println(s"mask: ${h.mask} (${h.mask.init}\t${h.mask.mask})")
+        f(mem, h.mask, instr)
       }
-      run(newMem, t)
+      run(newMem, t)(f)
     case Nil => memory
   }
 
   def solutionPartA: String = {
-    println(program)
-//    println(program.head.mask.underlying)
-//    println(program.head.mask.mask)
-//    println(program.head.mask.init)
-
-    val mem = run(Map.empty, program)
-    println(mem)
-
-    mem.values.sum.toString
+    val memory = run(Map.empty, program) { (mem, mask, instr) =>
+      mem.updated(instr.address, mask.init | (instr.value & mask.mask))
+    }
+    memory.values.sum.toString
   }
 
   def solutionPartB: String = ""
