@@ -14,9 +14,11 @@ object Day15 extends Day with App {
       playGame(mem.updated(last, it - 1), newLast, it + 1, end)
     }
 
-  def solutionPartA: String = playGame((0L :: numbers).init.zipWithIndex.drop(1).toMap, numbers.last, numbers.length + 1, 2020).toString
+  val mem = (0L :: numbers).init.zipWithIndex.drop(1).toMap
 
-  def solutionPartB: String = playGame((0L :: numbers).init.zipWithIndex.drop(1).toMap, numbers.last, numbers.length + 1, 30000000).toString
+  def solutionPartA: String = playGame(mem, numbers.last, numbers.length + 1, 2020).toString
+
+  def solutionPartB: String = playGame(mem, numbers.last, numbers.length + 1, 30000000).toString
 
   run()
 }
