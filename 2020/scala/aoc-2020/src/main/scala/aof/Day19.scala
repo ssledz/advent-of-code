@@ -67,21 +67,35 @@ object Day19 extends Day with App {
     val expanded = expandRules(rules)
 
     //8: 42 | 42 8
-    def matchRule8(s: String, acc: Option[String] = None): Option[String] = {
-      val rule8 = expanded(8)
-      def r(p: String) = s"""($p)+(.*)""".r
-      val res = rule8.value.collectFirst {
-        case rule if r(rule).matches(s) =>
-          val pp = r(rule)
-          s match {
-            case pp(_, rest) => rest
-          }
+    def matchRule8(s: String, rule8: Set[String]): List[String] =
+      if (s.isEmpty) {
+        List.empty
+      } else {
+        val xs = rule8.filter(r => s.startsWith(r))
+        if (xs.isEmpty) {
+          List.empty
+        } else {
+          val ys = xs.toList.map(x => s.stripPrefix(x))
+          ys ++ ys.flatMap(ss => matchRule8(ss, rule8))
+        }
+
       }
-      res match {
-        case Some(value) => matchRule8(value, res)
-        case None        => acc
-      }
-    }
+
+    //    def matchRule8(s: String, acc: Option[String] = None): Option[String] = {
+//      val rule8 = expanded(8)
+//      def r(p: String) = s"""($p)+(.*)""".r
+//      val res = rule8.value.collectFirst {
+//        case rule if r(rule).matches(s) =>
+//          val pp = r(rule)
+//          s match {
+//            case pp(_, rest) => rest
+//          }
+//      }
+//      res match {
+//        case Some(value) => matchRule8(value, res)
+//        case None        => acc
+//      }
+//    }
 
     //11: 42 31 | 42 11 31
     def matchRule11(s: String, rule42: Set[String], rule31: Set[String]): Boolean = {
@@ -90,10 +104,6 @@ object Day19 extends Day with App {
           x <- xs.toList
           y <- ys
         } yield (x, y)
-      def matches(a: String, b: String): Boolean = {
-        def pattern(n: Int) = Seq.fill(n)(a).mkString + Seq.fill(n)(b).mkString
-        (1 to 6).exists(n => pattern(n) == s)
-      }
       val allPairs = pairs(rule42, rule31)
       def go(ss: String): Boolean =
         if (ss.isEmpty) true
@@ -108,11 +118,9 @@ object Day19 extends Day with App {
 
     // 0: 8 11
     def matches(s: String): Boolean =
-      matchRule8(s) match {
-        case Some(value) if !value.isBlank => matchRule11(value, expanded(42).value, expanded(31).value)
-        case _                             => false
+      matchRule8(s, expanded(8).value).exists { rest =>
+        matchRule11(rest, expanded(42).value, expanded(31).value)
       }
-
     messages.count(matches).toString
   }
 
