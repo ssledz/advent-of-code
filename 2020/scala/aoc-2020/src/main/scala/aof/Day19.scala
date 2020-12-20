@@ -6,7 +6,7 @@ import scala.collection.mutable
 
 object Day19 extends Day with App {
 
-  val day: String = "day20.txt"
+  val day: String = "day19.txt"
 
   def parse: (Map[Int, Rule], List[String]) = {
     def go(xs: List[String], rules: List[(Int, Rule)]): (Map[Int, Rule], List[String]) = xs match {
@@ -118,9 +118,12 @@ object Day19 extends Day with App {
 
     // 0: 8 11
     def matches(s: String): Boolean =
-      matchRule8(s, expanded(8).value).exists { rest =>
-        matchRule11(rest, expanded(42).value, expanded(31).value)
+      matchRule8(s, expanded(8).value).exists {
+        case rest if !rest.isEmpty => matchRule11(rest, expanded(42).value, expanded(31).value)
+        case _                     => false
       }
+//    println(messages.filter(matches).mkString("\n"))
+
     messages.count(matches).toString
   }
 
