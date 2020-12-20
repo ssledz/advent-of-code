@@ -6,7 +6,7 @@ import scala.collection.mutable
 
 object Day19 extends Day with App {
 
-  val day: String = "day19.txt"
+  val day: String = "day20.txt"
 
   def parse: (Map[Int, Rule], List[String]) = {
     def go(xs: List[String], rules: List[(Int, Rule)]): (Map[Int, Rule], List[String]) = xs match {
@@ -84,9 +84,7 @@ object Day19 extends Day with App {
     }
 
     //11: 42 31 | 42 11 31
-    def matchRule11(s: String): Boolean = {
-      val rule42 = expanded(42)
-      val rule31 = expanded(31)
+    def matchRule11(s: String, rule42: Set[String], rule31: Set[String]): Boolean = {
       def pairs(xs: Set[String], ys: Set[String]): List[(String, String)] =
         for {
           x <- xs.toList
@@ -96,13 +94,22 @@ object Day19 extends Day with App {
         def pattern(n: Int) = Seq.fill(n)(a).mkString + Seq.fill(n)(b).mkString
         (1 to 6).exists(n => pattern(n) == s)
       }
-      pairs(rule42.value, rule31.value).exists { case (a, b) => matches(a, b) }
+      val allPairs = pairs(rule42, rule31)
+      def go(ss: String): Boolean =
+        if (ss.isEmpty) true
+        else {
+          allPairs.find { case (pref, suff) => ss.startsWith(pref) && ss.endsWith(suff) } match {
+            case Some((pref, suff)) => go(ss.stripPrefix(pref).stripSuffix(suff))
+            case None               => false
+          }
+        }
+      go(s)
     }
 
     // 0: 8 11
     def matches(s: String): Boolean =
       matchRule8(s) match {
-        case Some(value) if !value.isBlank => matchRule11(value)
+        case Some(value) if !value.isBlank => matchRule11(value, expanded(42).value, expanded(31).value)
         case _                             => false
       }
 
