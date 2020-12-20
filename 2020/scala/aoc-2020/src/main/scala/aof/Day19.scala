@@ -81,22 +81,6 @@ object Day19 extends Day with App {
 
       }
 
-    //    def matchRule8(s: String, acc: Option[String] = None): Option[String] = {
-//      val rule8 = expanded(8)
-//      def r(p: String) = s"""($p)+(.*)""".r
-//      val res = rule8.value.collectFirst {
-//        case rule if r(rule).matches(s) =>
-//          val pp = r(rule)
-//          s match {
-//            case pp(_, rest) => rest
-//          }
-//      }
-//      res match {
-//        case Some(value) => matchRule8(value, res)
-//        case None        => acc
-//      }
-//    }
-
     //11: 42 31 | 42 11 31
     def matchRule11(s: String, rule42: Set[String], rule31: Set[String]): Boolean = {
       def pairs(xs: Set[String], ys: Set[String]): List[(String, String)] =
@@ -122,8 +106,6 @@ object Day19 extends Day with App {
         case rest if !rest.isEmpty => matchRule11(rest, expanded(42).value, expanded(31).value)
         case _                     => false
       }
-//    println(messages.filter(matches).mkString("\n"))
-
     messages.count(matches).toString
   }
 
