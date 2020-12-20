@@ -28,30 +28,14 @@ object Day20 extends Day with App {
       .mapValues(_.map(_._2))
       .toMap
 
-  val mapTileEdges: Set[Tile] = edgeToTiles.filter(_._2.size == 1).flatMap(_._2).toSet
-
-  val mapEdges: Set[String] = edgeToTiles.filter(_._2.size == 1).keys.toSet
+  val imageFrame: Set[Tile] = edgeToTiles.filter(_._2.size == 1).flatMap(_._2).toSet
 
   def solutionPartA: String = {
-//    println(mapTileEdges)
-//    println(tiles -- mapTileEdges)
-    val cornerTiles = mapTileEdges.filter { tile =>
+    val cornerTiles = imageFrame.filter { tile =>
       val otherTiles: Set[Tile] = tiles - tile
       val otherEdges = otherTiles.flatMap(_.edges)
-      val neighbours = tile.edges.filter(otherEdges.contains)
-
-//      println
-//      println("tile: " + tile)
-//      println("tile.edges: " + tile.edges)
-//      println("other tiles: " + otherTiles)
-//      println("neighbours: " + neighbours.flatMap(edgeToTiles.apply))
-//      println("neighbours: " + neighbours)
-//      println("neighbours cnt: " + neighbours.size)
-
       tile.edges.count(otherEdges.contains) == 4
-//      tile.edges.count(mapEdges.contains) == 2
     }
-    println("cornerTiles" + cornerTiles)
     cornerTiles.map(_.id.toLong).product.toString
   }
 
@@ -71,7 +55,6 @@ object Day20 extends Day with App {
 
     val edges: Set[String] = edgesFrom(img) ++ edgesFrom(img.transpose)
 
-//    def innerImg: List[String]
     override def toString: String = id.toString
   }
   object Tile {
