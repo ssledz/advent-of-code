@@ -3,6 +3,8 @@ package aof
 import java.math.BigInteger
 import java.security.MessageDigest
 
+import scala.collection.mutable
+
 package object utils {
 
   def mergeMaps[K, V](m1: Map[K, V], m2: Map[K, V])(implicit m: Semigroup[V]): Map[K, V] =
@@ -48,6 +50,16 @@ package object utils {
         (ys, e :: xs)
     }
     if (xs.length % 2 == 0) (ys.reverse, zs.reverse) else (zs.reverse, ys.reverse)
+  }
+
+  def memo[A, B](m: mutable.Map[A, B])(f: A => B): A => B = key => {
+    if (m.contains(key)) {
+      m(key)
+    } else {
+      val value = f(key)
+      m.update(key, value)
+      value
+    }
   }
 
   implicit class Position(p: (Int, Int)) {

@@ -1,5 +1,9 @@
 package aof
 
+import aof.utils._
+
+import scala.collection.mutable
+
 object Day19 extends Day with App {
 
   val day: String = "day19.txt"
@@ -17,23 +21,25 @@ object Day19 extends Day with App {
   rules.values.toList
 
   def expandRules(rules: Map[Int, Rule]): Map[Int, ExpandedRule] = {
+    val mm = mutable.Map.empty[List[Set[String]], List[String]]
     def combine(xs: List[Set[String]]): List[String] = xs match {
       case h :: Nil => h.toList
       case h :: t =>
         h.flatMap { x =>
-          combine(t).map(y => x + y)
+          memo(mm)(combine)(t).map(y => x + y)
         }.toList
       case Nil => List.empty
     }
+    val m = mutable.Map.empty[Int, Set[String]]
     def expand(id: Int): Set[String] = {
       val rule = rules(id)
       rule match {
         case DependentRule(deps) =>
           deps.flatMap { rules: List[Int] =>
             val xs: List[Set[String]] = rules.map { rule =>
-              expand(rule)
+              memo(m)(expand)(rule)
             }
-            combine(xs)
+            memo(mm)(combine)(xs)
           }.toSet
         case ExpandedRule(value) => value
       }
@@ -44,7 +50,7 @@ object Day19 extends Day with App {
       .foldLeft(expanded) {
         case (acc, (id, rule)) =>
           val value = rule.deps.flatMap { rs =>
-            combine(rs.map(expand))
+            memo(mm)(combine)(rs.map(memo(m)(expand)))
           }
           (id, ExpandedRule(value.toSet)) :: acc
       }
@@ -57,8 +63,51 @@ object Day19 extends Day with App {
     messages.count(zeroRule.value.contains).toString
   }
 
-  def solutionPartB: String =
-    ""
+  def solutionPartB: String = {
+    val expanded = expandRules(rules)
+
+    //8: 42 | 42 8
+    def matchRule8(s: String, acc: Option[String] = None): Option[String] = {
+      val rule8 = expanded(8)
+      def r(p: String) = s"""($p)+(.*)""".r
+      val res = rule8.value.collectFirst {
+        case rule if r(rule).matches(s) =>
+          val pp = r(rule)
+          s match {
+            case pp(_, rest) => rest
+          }
+      }
+      res match {
+        case Some(value) => matchRule8(value, res)
+        case None        => acc
+      }
+    }
+
+    //11: 42 31 | 42 11 31
+    def matchRule11(s: String): Boolean = {
+      val rule42 = expanded(42)
+      val rule31 = expanded(31)
+      def pairs(xs: Set[String], ys: Set[String]): List[(String, String)] =
+        for {
+          x <- xs.toList
+          y <- ys
+        } yield (x, y)
+      def matches(a: String, b: String): Boolean = {
+        def pattern(n: Int) = Seq.fill(n)(a).mkString + Seq.fill(n)(b).mkString
+        (1 to 6).exists(n => pattern(n) == s)
+      }
+      pairs(rule42.value, rule31.value).exists { case (a, b) => matches(a, b) }
+    }
+
+    // 0: 8 11
+    def matches(s: String): Boolean =
+      matchRule8(s) match {
+        case Some(value) if !value.isBlank => matchRule11(value)
+        case _                             => false
+      }
+
+    messages.count(matches).toString
+  }
 
   run()
 
