@@ -44,32 +44,23 @@ object Day21 extends Day with App {
     }
   }
 
-  def solutionPartA: String = {
-//    println(foods.map(_.toString).mkString("\n"))
-//    println
-    val inToAll = ingredientToAllergenFreq(foods)
-    val allToIn: Map[String, Map[String, Int]] = reversKeys(inToAll)
-//    println(inToAll.map(_.toString()).mkString("\n"))
-//    println
-//    println(allToIn.map(_.toString()).mkString("\n"))
-
-    def go(allToIn: List[(String, Map[String, Int])], inWithNoAll: Set[String]): Set[String] = allToIn match {
-      case (h @ (allergen, inFreq)) :: t =>
-        inFreq.toList.filter(in => inWithNoAll.contains(in._1)).sortBy(_._2)(Ordering[Int].reverse) match {
-          case (ing, _) :: Nil                        => go(t, inWithNoAll - ing)
-          case (ing1, n1) :: (_, n2) :: _ if n1 != n2 => go(t, inWithNoAll - ing1)
-          case (_, n1) :: (_, n2) :: _ if n1 == n2    => go(t ::: List(h), inWithNoAll)
-        }
-      case Nil => inWithNoAll
-    }
-
-    val inWithNoAll = go(allToIn.toList, inToAll.keys.toSet)
-//    println(inWithNoAll)
-    inWithNoAll.toList.map(in => foods.count(_.ingredients.contains(in))).sum.toString
+  def go(allToIn: List[(String, Map[String, Int])], inWithNoAll: Set[String], inToAll: List[(String, String)]): (Set[String], List[(String, String)]) = allToIn match {
+    case (h @ (allergen, inFreq)) :: t =>
+      inFreq.toList.filter(in => inWithNoAll.contains(in._1)).sortBy(_._2)(Ordering[Int].reverse) match {
+        case (ing, _) :: Nil                        => go(t, inWithNoAll - ing, (ing, allergen) :: inToAll)
+        case (ing1, n1) :: (_, n2) :: _ if n1 != n2 => go(t, inWithNoAll - ing1, (ing1, allergen) :: inToAll)
+        case (_, n1) :: (_, n2) :: _ if n1 == n2    => go(t ::: List(h), inWithNoAll, inToAll)
+      }
+    case Nil => (inWithNoAll, inToAll)
   }
 
-  def solutionPartB: String =
-    ""
+  val inToAll = ingredientToAllergenFreq(foods)
+  val allToIn = reversKeys(inToAll)
+  val (inWithNoAll, inToOneAll) = go(allToIn.toList, inToAll.keys.toSet, List.empty)
+
+  def solutionPartA: String = inWithNoAll.toList.map(in => foods.count(_.ingredients.contains(in))).sum.toString
+
+  def solutionPartB: String = inToOneAll.sortBy(_._2).map(_._1).mkString(",")
 
   run()
 
