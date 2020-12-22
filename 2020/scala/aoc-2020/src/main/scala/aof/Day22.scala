@@ -29,7 +29,7 @@ object Day22 extends Day with App {
   }
 
   def solutionPartB: String = {
-    implicit val m = mutable.Map.empty[(Deck, Deck), (Deck, Deck)]
+    val m = mutable.Map.empty[(Deck, Deck), (Deck, Deck)]
     def play(p1: Deck, p2: Deck, visited: Set[(Deck, Deck)]): (Deck, Deck) =
       (p1, p2) match {
         case decks if visited.contains(decks) => (p1, Nil)
