@@ -1,10 +1,9 @@
 package aof
-
+import scala.collection.mutable
 object Day22 extends Day with App {
 
   type Deck = List[Int]
 
-//  val day: String = "day23.txt"
   val day: String = "day22.txt"
 
   def parseDecks: (List[Int], List[Int]) = {
@@ -30,18 +29,24 @@ object Day22 extends Day with App {
   }
 
   def solutionPartB: String = {
-    def play(p1: Deck, p2: Deck, visited: Set[(Deck, Deck)]): (Deck, Deck) = (p1, p2) match {
-      case decks if visited.contains(decks) => play(p1 ::: p2, Nil, visited)
-      case (h1 :: t1, h2 :: t2) if h1 <= t1.size && h2 <= t2.size =>
-        play(t1, t2, Set.empty) match {
-          case (_, Nil) => play(t1 ::: List(h1, h2), t2, visited + (p1 -> p2))
-          case (Nil, _) => play(t1, t2 ::: List(h2, h1), visited + (p1 -> p2))
-        }
-      case (h1 :: t1, h2 :: t2) if h1 > h2 => play(t1 ::: List(h1, h2), t2, visited + (p1 -> p2))
-      case (h1 :: t1, h2 :: t2) if h1 < h2 => play(t1, t2 ::: List(h2, h1), visited + (p1 -> p2))
-      case (_, Nil)                        => (p1, p2)
-      case (Nil, _)                        => (p1, p2)
-    }
+    implicit val m = mutable.Map.empty[(Deck, Deck), (Deck, Deck)]
+    def play(p1: Deck, p2: Deck, visited: Set[(Deck, Deck)]): (Deck, Deck) =
+      (p1, p2) match {
+        case decks if visited.contains(decks) => (p1, Nil)
+        case (h1 :: t1, h2 :: t2) if h1 <= t1.size && h2 <= t2.size =>
+          val deck1 = t1.take(h1)
+          val deck2 = t2.take(h2)
+          val game = m.getOrElse((deck1, deck2), play(deck1, deck2, Set.empty))
+          m.put((deck1, deck2), game)
+          game match {
+            case (_, Nil) => play(t1 ::: List(h1, h2), t2, visited + (p1 -> p2))
+            case (Nil, _) => play(t1, t2 ::: List(h2, h1), visited + (p1 -> p2))
+          }
+        case (h1 :: t1, h2 :: t2) if h1 > h2 => play(t1 ::: List(h1, h2), t2, visited + (p1 -> p2))
+        case (h1 :: t1, h2 :: t2) if h1 < h2 => play(t1, t2 ::: List(h2, h1), visited + (p1 -> p2))
+        case (_, Nil)                        => (p1, p2)
+        case (Nil, _)                        => (p1, p2)
+      }
     def winning(decks: (Deck, Deck)): Deck = decks match {
       case (p1, Nil) => p1
       case (Nil, p2) => p2
