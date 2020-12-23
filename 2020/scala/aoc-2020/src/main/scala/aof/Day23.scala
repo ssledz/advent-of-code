@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 
 object Day23 extends Day with App {
 
-  val day: String = "day23.txt"
+  val day: String = "day24.txt"
 
   val cups = lines.head.toVector.map(_.toString.toInt)
 
@@ -30,9 +30,9 @@ object Day23 extends Day with App {
     val from = (n + 1) % cups.size
     val pics = take(cups, from, 3)
     val dest: Int = pickDest(pics, curr - 1)
-    //      println("cups: " + show(cups, currIdx))
-    //      println("pick up: " + pics.mkString(", "))
-    //      println("destination: " + dest)
+          println("cups: " + show(cups, curr))
+          println("pick up: " + pics.mkString(", "))
+          println("destination: " + dest)
     val dropped = cups.filterNot(pics.contains)
     val newCups = addAfter(dropped, pics, dest)
     val newN = newCups.zipWithIndex.find(_._1 == curr).get._2
@@ -43,26 +43,37 @@ object Day23 extends Day with App {
     (1 to n)
       .foldLeft((xs, 0)) {
         case ((cups, n), turn) =>
-          //            println(s"\n-- move $turn --")
+//          if(turn % 100 == 0) {
+             println(s"\n-- move $turn --")
+//          }
           play(cups, n)
       }
       ._1
 
   def solutionPartA: String = {
-    val cupsN = playN(cups, 100)
-    (cupsN.dropWhile(_ != 1).tail ++ cupsN.takeWhile(_ != 1)).mkString
+//    val cupsN = playN(cups, 100)
+//    (cupsN.dropWhile(_ != 1).tail ++ cupsN.takeWhile(_ != 1)).mkString
+    ""
   }
 
-  def solutionPartB: String =
-    ""
+  def solutionPartB: String = {
+//    val mCups = cups ++ (10 to 1000_000)
+    val mCups = cups ++ (10 to 100)
+    val cupsN = playN(mCups, 10_000_000)
+    val cupOne = cupsN.indexOf(1)
+    val a = cupsN(cupOne + 1).toLong
+    val b = cupsN(cupOne + 2).toLong
+    println(s"(a, b) = ($a, $b)")
+    (a * b).toString
+  }
 
   run()
 
   def show(xs: Vector[Int], n: Int): String =
-    xs.zipWithIndex
+    xs
       .map {
-        case (x, i) if i == n => s"($x)"
-        case (x, _)           => x.toString
+        case x if x == n => s"($x)"
+        case x           => x.toString
       }
       .mkString(" ")
 }
