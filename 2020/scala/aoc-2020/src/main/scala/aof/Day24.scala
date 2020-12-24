@@ -32,7 +32,7 @@ object Day24 extends Day with App {
 
   def solutionPartA: String = blackTiles.size.toString
 
-  def adjacentTiles(p: Point): List[Point] = ???
+  def adjacentTiles(p: Point): List[Point] = dirs.values.toList.map(_ + p)
 
   def solutionPartB: String = {
     val day0 = blackTiles.toSet
