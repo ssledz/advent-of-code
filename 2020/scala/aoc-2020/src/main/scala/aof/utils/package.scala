@@ -44,6 +44,20 @@ package object utils {
     LazyList.continually("0").take(32 - m.length).mkString + m
   }
 
+  def log(a: Double, x: Double): Double = Math.log(x) / Math.log(a)
+
+  def powMod(base: Int, exp: Int, mod: Int)(implicit m: mutable.Map[Int, Long]): Long = {
+    val max = log(base, mod).toInt
+    def go(exp: Int): Long =
+      if (exp <= max) {
+        Math.pow(base, exp).toLong
+      } else {
+        val exp1 = exp / 2
+        (memo(m)(go)(exp1) * memo(m)(go)(exp - exp1)) % mod
+      }
+    memo(m)(go)(exp)
+  }
+
   def spanEven[A](xs: List[A]): (List[A], List[A]) = {
     val (ys, zs) = xs.foldLeft((List.empty[A], List.empty[A])) {
       case ((xs, ys), e) =>
