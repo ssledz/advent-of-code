@@ -2,7 +2,6 @@ module Main where
 
 import Aoc
 import Data.List
-import Debug.Trace
 
 main :: IO ()
 main = do
