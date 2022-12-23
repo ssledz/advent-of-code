@@ -1,6 +1,7 @@
 module Main where
 
 import Aoc
+import Data.List
 import Debug.Trace
 
 main :: IO ()
@@ -25,4 +26,10 @@ maxCallories = go 0 0
 
 
 partB :: [String] -> String
-partB lines = ""
+partB = show . sum . take 3 . sortDesc . readCallories
+
+readCallories :: [String] -> [Integer]
+readCallories lines = snd $ foldr go (0, []) ("":lines)
+  where
+    go ""   (acc, cs) = (0, acc:cs)
+    go line (acc, cs) = (acc + read line, cs)
