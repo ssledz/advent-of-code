@@ -14,6 +14,8 @@ run filePath = do
 
 partA :: [String] -> String
 partA lines = show $ sum $ oneRound <$> lines
+  where
+    oneRound [a, ' ', b] = roundScore (toShape a) (toShape b)
 
 data Shape = Rock | Paper | Scissors deriving (Show, Eq)
 
@@ -46,8 +48,18 @@ roundOutcome a b | a == b    = 3
 roundScore :: Shape -> Shape -> Integer
 roundScore a b = roundOutcome a b + shapeScore b
 
-oneRound :: String -> Integer
-oneRound [a, ' ', b] = roundScore (toShape a) (toShape b)
-
 partB :: [String] -> String
-partB lines = show $ length lines
+partB lines = show $ sum $ oneRound <$> lines
+  where
+    oneRound [a, ' ', b] =
+      let shape1 = toShape a
+      in roundScore shape1 (toShape2 shape1 b)
+
+toShape2 :: Shape -> Char -> Shape
+toShape2 Rock     'X' = Scissors
+toShape2 Scissors 'X' = Paper
+toShape2 Paper    'X' = Rock
+toShape2 a        'Y' = a
+toShape2 Rock     'Z' = Paper
+toShape2 Scissors 'Z' = Rock
+toShape2 Paper    'Z' = Scissors
