@@ -3,12 +3,10 @@ module Main where
 import Aoc
 import Data.Char
 import Data.List
-import Debug.Trace
 
 main :: IO ()
 main = do
   run "input/day03.txt"
---  run "input/test.txt"
 
 run :: FilePath -> IO ()
 run filePath = do
@@ -38,4 +36,17 @@ commonItems (c1, c2) = filter f (nub c1)
     f c = elem c c2
 
 partB :: [String] -> String
-partB lines = ""
+partB = show . sum . fmap priority . go
+  where
+    go = (foldMap commonItemsInGroup) . toGroups
+
+
+toGroups :: [String] -> [(String, String, String)]
+toGroups = go []
+  where
+    go acc lines | length lines < 3 = acc
+    go acc lines = let ([a, b, c], other) = splitAt 3 lines
+                   in go ((a, b, c) : acc) other
+
+commonItemsInGroup :: (String, String, String) -> String
+commonItemsInGroup (a, b, c) = commonItems (commonItems (a, b), c)
