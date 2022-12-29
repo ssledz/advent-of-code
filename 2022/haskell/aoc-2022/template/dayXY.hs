@@ -12,7 +12,7 @@ run filePath = do
   putStr "Solution partB: " >> readLines filePath partB
 
 partA :: [String] -> String
-partA lines = show $ length lines
+partA = show . length
 
 partB :: [String] -> String
-partB lines = ""
+partB = show . length
