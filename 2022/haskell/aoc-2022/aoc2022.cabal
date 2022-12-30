@@ -6,15 +6,19 @@ author:             Sławomir Śledź
 maintainer:         slawomir.sledz@gmail.com
 
 library
-    exposed-modules:  Aoc
-    build-depends:    base ^>=4.16.3.0
+    exposed-modules:
+          Aoc
+        , Arr
+    build-depends:
+          base ^>=4.16.3.0
+        , containers ==0.6.6
     hs-source-dirs:   src
     default-language: Haskell2010
 
 common day
     build-depends:
-        base ^>=4.16.3.0,
-        aoc2022
+          base ^>=4.16.3.0
+        , aoc2022
     hs-source-dirs:   app
     default-language: Haskell2010
 
@@ -33,3 +37,7 @@ executable day03
 executable day04
     import:           day
     main-is:          day04.hs
+
+executable day05
+    import:           day
+    main-is:          day05.hs

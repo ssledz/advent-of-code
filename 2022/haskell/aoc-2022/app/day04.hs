@@ -32,10 +32,6 @@ readRT line =
   let (l, r) = splitOn ',' line
   in (readR l, readR r)
 
-splitOn :: Char -> String -> (String, String)
-splitOn c s = let (l, r) = span (/= c) s
-              in (l, tail r)
-
 partB :: [String] -> String
 partB = show . length . filter (uncurry overlaps) . fmap readRT
   where

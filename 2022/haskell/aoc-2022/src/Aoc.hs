@@ -1,6 +1,7 @@
 module Aoc
   ( readLines
   , sortDesc
+  , splitOn
   ) where
 
 import Data.List
@@ -12,3 +13,7 @@ readLines fileName f = do
 
 sortDesc :: Ord a => [a] -> [a]
 sortDesc = sortBy (flip compare)
+
+splitOn :: Char -> String -> (String, String)
+splitOn c s = let (l, r) = span (/= c) s
+              in (l, tail r)
