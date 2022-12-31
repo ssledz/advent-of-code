@@ -45,10 +45,27 @@ readInput lines =
       ls = readLayer <$> init s
       trim = dropWhile (==' ')
       stacks = trim <$> transpose ls
-  in (Arr.fromList stacks, fmap readMove . tail $ c)
+  in (Arr.elems stacks, fmap readMove . tail $ c)
+
+
+doMove :: Move -> Stacks -> Stacks
+doMove (M 0 _ _) stacks          = stacks
+doMove (M _ i j) stacks | i == j = stacks
+doMove (M q i j) stacks =
+  let from = stacks ! (i - 1)
+      update = Arr.adjust (i - 1) tail . Arr.adjust (j - 1) (head from :)
+  in doMove (M (q - 1) i j) (update stacks)
 
 partA :: [String] -> String
-partA = show . readInput
+partA = show . go . readInput
+  where
+    go (stacks, moves) =
+      let stacks' = foldl' (flip doMove) stacks moves
+      in Arr.toList $ Arr.map head stacks'
+    go' (stacks, moves) =
+      let update = foldr (.) id $ fmap doMove (reverse moves)
+          stacks' = update stacks
+      in Arr.toList $ Arr.map head stacks'
 
 partB :: [String] -> String
 partB = show . length

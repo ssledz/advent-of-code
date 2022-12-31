@@ -6,6 +6,7 @@ module Arr
   , toList
   , fromList
   , update
+  , adjust
   , elems
   , size
   ) where
@@ -30,11 +31,14 @@ map f (Arr c) = Arr (IntMap.map f c)
 toList :: Arr a -> [a]
 toList (Arr c) = IntMap.elems c
 
-elems :: Arr a -> [(Int, a)]
-elems (Arr c) = IntMap.toList c
+fromList :: Arr a -> [(Int, a)]
+fromList (Arr c) = IntMap.toList c
 
-update :: Arr a -> Int -> a -> Arr a
-update (Arr c) i a = Arr $ IntMap.update (const (Just a)) i c
+update :: Int -> a -> Arr a -> Arr a
+update i a (Arr c) = Arr $ IntMap.update (const (Just a)) i c
 
-fromList :: [a] -> Arr a
-fromList = Arr . IntMap.fromList . zip [0..]
+adjust :: Int -> (a -> a) -> Arr a -> Arr a
+adjust i f (Arr c) = Arr $ IntMap.adjust f i c
+
+elems :: [a] -> Arr a
+elems = Arr . IntMap.fromList . zip [0..]

@@ -2,6 +2,7 @@ module Aoc
   ( readLines
   , sortDesc
   , splitOn
+  , headMay
   ) where
 
 import Data.List
@@ -17,3 +18,7 @@ sortDesc = sortBy (flip compare)
 splitOn :: Char -> String -> (String, String)
 splitOn c s = let (l, r) = span (/= c) s
               in (l, tail r)
+
+headMay :: [a] -> Maybe a
+headMay [] = Nothing
+headMay xs = Just $ head xs
