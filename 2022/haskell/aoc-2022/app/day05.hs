@@ -56,18 +56,21 @@ doMove (M q i j) stacks =
       update = Arr.adjust (i - 1) tail . Arr.adjust (j - 1) (head from :)
   in doMove (M (q - 1) i j) (update stacks)
 
+sim :: (Move -> Stacks -> Stacks) -> (Stacks, [Move]) -> String
+sim f (stacks, moves) =
+  let stacks' = foldl' (flip f) stacks moves
+  in Arr.toList $ Arr.map head stacks'
+
 partA :: [String] -> String
-partA = show . go . readInput
-  where
-    go (stacks, moves) =
-      let stacks' = foldl' (flip doMove) stacks moves
-      in Arr.toList $ Arr.map head stacks'
-    go' (stacks, moves) =
-      let update = foldr (.) id $ fmap doMove (reverse moves)
-          stacks' = update stacks
-      in Arr.toList $ Arr.map head stacks'
+partA = show . (sim doMove) . readInput
 
 partB :: [String] -> String
-partB = show . length
+partB = show . (sim doMove') . readInput
+
+doMove' :: Move -> Stacks -> Stacks
+doMove' (M q i j) stacks =
+  let from = stacks ! (i - 1)
+      update = Arr.adjust (i - 1) (drop q) . Arr.adjust (j - 1) (take q from <>)
+  in  update stacks
 
 
