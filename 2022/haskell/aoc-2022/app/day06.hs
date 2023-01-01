@@ -12,21 +12,25 @@ run filePath = do
   putStr "Solution partA: " >> readLines filePath partA
   putStr "Solution partB: " >> readLines filePath partB
 
-fcs :: String -> [String]
-fcs line =
-  let f xs c = xs <> [c]
-      g a b  = a:b:[]
-      s1 = zipWith g line (drop 1 line)
-      s2 = zipWith f s1 (drop 2 line)
-  in  zipWith f s2 (drop 3 line)
-
-findMarker :: String -> Maybe (Int, String)
-findMarker = find p . zip [1..] . fcs
+sNcs :: Int -> String -> [String]
+sNcs n = go
   where
-    p (_, s) = length (nub s) == length s
+    go [] = []
+    go xs = let h = take n xs
+            in h:go (drop 1 xs)
+
+findMarker :: (String -> [String]) -> String -> Maybe (Int, String)
+findMarker f = find (unique . snd) . zip [1..] . f
+
+unique :: String -> Bool
+unique s = length (nub s) == length s
+
+count :: (Int, String) -> Int
+count (c, s) = c + length s - 1
 
 partA :: [String] -> String
-partA = show . fmap ((+3) . fst) . findMarker . head
+partA = show . fmap count . (findMarker $ sNcs 4) . head
 
 partB :: [String] -> String
-partB = show . length
+partB = show . fmap count . (findMarker $ sNcs 14) . head
+
