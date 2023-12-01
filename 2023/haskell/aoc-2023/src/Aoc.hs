@@ -3,6 +3,7 @@ module Aoc
   , sortDesc
   , splitOn
   , headMay
+  , lastMay
   ) where
 
 import Data.List
@@ -22,3 +23,7 @@ splitOn c s = let (l, r) = span (/= c) s
 headMay :: [a] -> Maybe a
 headMay [] = Nothing
 headMay xs = Just $ head xs
+
+lastMay :: [a] -> Maybe a
+lastMay [] = Nothing
+lastMay xs = Just $ last xs
