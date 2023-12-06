@@ -5,8 +5,8 @@ import qualified Data.Char as Char
 
 main :: IO ()
 main = do
-  run "input/dayXY.txt"
-  -- run "input/day03.txt"
+  -- run "input/dayXY.txt"
+  run "input/day03.txt"
 
 run :: FilePath -> IO ()
 run filePath = do
@@ -55,13 +55,28 @@ adjacents p =
       positive (Point x y) = x >= 0 && y >= 0
   in filter positive $ map (addP p) disp
 
+symbolsAdjacency :: [Symbol] -> [Point]
+symbolsAdjacency symbols =
+  let symbolAdj (Symbol _ p) = adjacents p
+  in  symbols >>= symbolAdj
+
+isPartAdjacent :: [Point] -> PartNumber -> Bool
+isPartAdjacent adjs (PartNumber _ points) = any (\p -> p `elem` points) adjs
+
 partA :: [String] -> String
 partA lines =
   let (parts, symbols) = readInput lines
-      symbolAdj (Symbol _ p) = adjacents p
-      symbolsAdj = symbols >>= symbolAdj
-      parts' = filter (\(PartNumber _ points) -> any (\p -> p `elem` points) symbolsAdj) parts
+      symbolsAdj = symbolsAdjacency symbols
+      parts' = filter (isPartAdjacent symbolsAdj) parts
   in show $ sum (map partNumber parts')
 
 partB :: [String] -> String
-partB = show . length
+partB lines =
+  let (parts, symbols) = readInput lines
+      getGear (Symbol '*' p) =
+        let adjs = adjacents p
+            parts' = filter (isPartAdjacent adjs) parts
+        in if length parts' == 2 then map partNumber parts' else []
+      getGear (Symbol _ p) = []
+      gears = filter (not . null) $ map getGear symbols
+  in show $ sum $ map product gears
