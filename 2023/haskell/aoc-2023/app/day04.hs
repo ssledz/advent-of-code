@@ -5,7 +5,7 @@ import Debug.Trace (trace)
 
 main :: IO ()
 main = do
-  run "input/dayXY.txt"
+  -- run "input/dayXY.txt"
   run "input/day04.txt"
 
 run :: FilePath -> IO ()
@@ -39,4 +39,20 @@ partA :: [String] -> String
 partA = show . sum . map (score . winningNums) . readInput
 
 partB :: [String] -> String
-partB = show . length
+partB = show . length . process . readInput
+
+process :: [Card] -> [Int]
+process cards = go [] init
+  where
+    init :: [(Card, [Card])]
+    init =
+      let indexed = zip cards [1..]
+      in map (\(card, n) -> (card, drop n cards)) indexed
+    go :: [Int] -> [(Card, [Card])] -> [Int]
+    go acc [] = acc
+    go acc ((card@(Card id _ _), stack) : rest) =
+      let wnl = length $ winningNums card
+          wc = take wnl stack
+          stack' = zipWith (drop) [1..wnl] (repeat stack)
+      in go (id : acc) (zip wc stack' <> rest)
+

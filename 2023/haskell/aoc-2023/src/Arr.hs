@@ -4,6 +4,7 @@ module Arr
   , (!)
   , Arr.map
   , toList
+  , toList'
   , fromList
   , update
   , adjust
@@ -30,6 +31,9 @@ map f (Arr c) = Arr (IntMap.map f c)
 
 toList :: Arr a -> [a]
 toList (Arr c) = IntMap.elems c
+
+toList' :: Arr a -> [(Int, a)]
+toList' (Arr c) = IntMap.toList c
 
 fromList :: Arr a -> [(Int, a)]
 fromList (Arr c) = IntMap.toList c
