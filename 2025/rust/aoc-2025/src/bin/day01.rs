@@ -1,6 +1,5 @@
 use aoc_2025::read_lines;
 
-// 565 too low
 fn main() {
     println!("Solution part_a: {}", part_a());
     println!("Solution part_b: {}", part_b());
