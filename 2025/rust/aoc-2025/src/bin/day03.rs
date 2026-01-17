@@ -5,7 +5,7 @@ fn main() {
     println!("Solution part_b: {}", part_b());
 }
 
-fn largest_joltage(jr: &Vec<i32>) -> i64 {
+fn largest_joltage_a(jr: &Vec<i32>) -> i64 {
     let (idx, a) = jr[..jr.len() - 1]
         .iter()
         .enumerate()
@@ -22,7 +22,10 @@ fn largest_joltage(jr: &Vec<i32>) -> i64 {
     (*a as i64) * 10 + (*b as i64)
 }
 
-fn part_a() -> i64 {
+fn solver<F>(largest_joltage: F) -> i64
+where
+    F: Fn(&Vec<i32>) -> i64,
+{
     let lines = read_lines("input/day03.txt");
     let jrs: Vec<Vec<i32>> = lines
         .into_iter()
@@ -39,6 +42,14 @@ fn part_a() -> i64 {
     largest.into_iter().sum()
 }
 
-fn part_b() -> i64 {
+fn largest_joltage_b(jr: &Vec<i32>) -> i64 {
     -1
+}
+
+fn part_a() -> i64 {
+    solver(largest_joltage_a)
+}
+
+fn part_b() -> i64 {
+    solver(largest_joltage_b)
 }
