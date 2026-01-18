@@ -43,7 +43,12 @@ where
 }
 
 fn largest_joltage_b(jr: &Vec<i32>) -> i64 {
-    -1
+
+    fn go(acc: i64, jr: &Vec<i32>, n: usize) -> i64 {
+        -1
+    }
+
+    go(0, jr, 12)
 }
 
 fn part_a() -> i64 {
